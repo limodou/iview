@@ -50,6 +50,7 @@ import Upload from './components/upload';
 import {Row, Col} from './components/grid';
 import {Select, Option, OptionGroup} from './components/select';
 import locale from './locale/index';
+import {shim} from './utils/shim';
 
 const components = {
     Affix,
@@ -152,6 +153,9 @@ const install = function(Vue, opts = {}) {
 if (typeof window !== 'undefined' && window.Vue) {
     install(window.Vue);
 }
+
+// shim
+shim()
 
 const API = {
     version: process.env.VERSION, // eslint-disable-line no-undef
