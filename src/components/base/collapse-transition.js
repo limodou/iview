@@ -27,7 +27,7 @@ const Transition = {
             el.style.paddingBottom = el.dataset.oldPaddingBottom;
         }
 
-        el.style.overflow = 'hidden';
+        // el.style.overflow = 'hidden';
     },
 
     afterEnter(el) {
@@ -44,7 +44,7 @@ const Transition = {
         el.dataset.oldOverflow = el.style.overflow;
 
         el.style.height = el.scrollHeight + 'px';
-        el.style.overflow = 'hidden';
+        // el.style.overflow = 'hidden';
     },
 
     leave(el) {
