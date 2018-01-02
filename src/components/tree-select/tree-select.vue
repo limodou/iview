@@ -48,6 +48,7 @@
                 v-bind="options"
                 @on-select-change="handleSelected"
                 @on-check-change="handleChecked"
+                :load-data="handleRemoteLoadData"
                 :multiple="multiple"
                 :show-checkbox="multiple"
               ></Tree>
@@ -114,7 +115,10 @@ export default {
         type: Boolean,
         default: false
     },
-    remoteMethod: {
+    remoteQuery: {
+        type: Function
+    },
+    remoteLoadData: {
         type: Function
     },
     loading: {
@@ -190,14 +194,12 @@ export default {
       focusIndex: 0,
       query: '',
       lastQuery: '',
-      selectToChangeQuery: false,    // when select an option, set this first and set query, because query is watching, it will emit event
       inputLength: 20,
       notFound: false,
       slotChangeDuration: false,    // if slot change duration and in multiple, set true and after slot change, set false
       model: this.value,
       currentLabel: this.label,
       dropWidth: '',
-      hasData: this.choices.lenght > 0 ?  true : false, //数据条数
       oldData: null, // 用于保存原来的数据
       currentData: this.choices // 当前数据
     };
@@ -298,7 +300,7 @@ export default {
     notFoundShow () {
         // const options = this.$slots.default || [];
         // return (this.notFound && !this.remote) || (this.remote && !this.loading && !options.length);
-        return (this.query && this.notFound && !this.remote) || (this.remote && !this.loading && !this.hasData)
+        return (this.query && this.notFound && !this.remote) || (this.remote && !this.loading && !this.currentData.length > 0)
     }
   },
 
@@ -526,8 +528,23 @@ export default {
         }
         for(let item of this.currentData)
             find(item)
-    }
+    },
+    loadData (item, callback) {
+        if (!this.remoteLoadData) return
+        if (item && callback) {
+            this.remoteLoadData(item, callback)
+        } else {
+            const cb = (data) => {
+                this.currentData = data
+                this.notFound = this.currentData.length === 0
+            }
+            this.remoteLoadData(item, cb)
+        }
+    },
 
+    handleRemoteLoadData (item, callback) {
+        this.loadData(item, callback)
+    }
   },
 
   watch: {
@@ -560,6 +577,10 @@ export default {
       },
       visible (val) {
           if (val) {
+              // 如果是开始为空时，增加一次远程查询
+              if (this.remote && this.currentData.length === 0) {
+                  this.loadData()
+              }
               if (this.filterable) {
                   if (this.multiple) {
                       this.$refs.input.focus();
@@ -571,8 +592,8 @@ export default {
                   }
                   if (this.remote) {
                       const options = this.$slots.default || [];
-                      if (this.query !== '' && !options.length) {
-                          this.remoteMethod(this.query);
+                      if (this.query !== '') {
+                          this.remoteQuery(this.query);
                       }
                   }
               }
@@ -586,18 +607,24 @@ export default {
           }
       },
       query (val) {
-          if (this.remote && this.remoteMethod) {
-              if (!this.selectToChangeQuery) {
-                  this.$emit('on-query-change', val);
-                  this.remoteMethod(val);
-              }
-              this.focusIndex = 0;
+          if (this.remote && this.remoteQuery) {
+            if (val) {
+                if (!this.oldData) {
+                    this.oldData = this.currentData
+                }
+                const cb = (data) => {
+                    this.currentData = data
+                    this.notFound = this.currentData.length === 0
+                }
+                this.remoteQuery(val, cb)
+            } else {
+                if (this.oldData) {
+                    this.currentData = this.oldData
+                    this.oldData = null
+                }
+            }
+            this.focusIndex = 0;
           } else {
-            //   if (!this.selectToChangeQuery) {
-            //       this.$emit('on-query-change', val);
-            //   }
-            //   this.broadcastQuery(val);
-
             // 如果有值，则如果oldData为空，则将currentData保存在上面，然后重建树结构
             if (val) {
                 if (!this.oldData) {
@@ -611,12 +638,6 @@ export default {
                     this.oldData = null
                 }
             }
-            //   let is_hidden = true;
-
-            //   this.$nextTick(() => {
-                  
-            //       this.notFound = is_hidden;
-            //   });
           }
         //   this.selectToChangeQuery = false;
           this.broadcast('Drop', 'on-update-popper');
