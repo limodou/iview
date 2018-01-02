@@ -52,6 +52,7 @@ import {Select, Option, OptionGroup} from './components/select';
 import locale from './locale/index';
 import {shim} from './utils/shim';
 import dataset from 'element-dataset'
+import TreeSelect from './components/tree-select';
 
 const components = {
     Affix,
@@ -116,7 +117,8 @@ const components = {
     Tooltip,
     Transfer,
     Tree,
-    Upload
+    Upload,
+    iTreeSelect: TreeSelect
 };
 
 const iview = {
