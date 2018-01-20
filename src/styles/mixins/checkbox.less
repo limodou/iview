@@ -31,7 +31,7 @@
             border: 1px solid @border-color-base;
             border-radius: 2px;
             background-color: #fff;
-            transition: border-color @transition-time @ease-in-out, background-color @transition-time @ease-in-out;
+            transition: border-color @transition-time @ease-in-out, background-color @transition-time @ease-in-out, box-shadow @transition-time @ease-in-out;
 
             &:after {
                 content: '';
@@ -236,6 +236,14 @@
         font-size: @font-size-small;
         display: inline-block;
         margin-right: 8px;
+        outline: 0;
+        &:focus,
+        &:active {
+            & .@{checkbox-prefix-cls}-inner {
+                box-shadow: 0 0 0 2px fade(@primary-color, 20%);
+            }
+        }
+
         &-disabled{
             cursor: @cursor-disabled;
         }
