@@ -208,6 +208,7 @@ export default {
     classes () {
         return [
             `${prefixCls}`,
+            'ivu-tree-select',
             {
                 [`${prefixCls}-visible`]: this.visible,
                 [`${prefixCls}-disabled`]: this.disabled,
@@ -604,6 +605,7 @@ export default {
                   this.query = ''
               }
               this.broadcast('Drop', 'on-destroy-popper');
+              this.$emit('close')
           }
       },
       query (val) {
