@@ -124,7 +124,7 @@ const components = {
     Transfer,
     Tree,
     Upload,
-    iTreeSelect: TreeSelect
+    TreeSelect
 };
 
 const iview = {

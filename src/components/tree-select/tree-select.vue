@@ -202,7 +202,7 @@ export default {
       dropWidth: '',
       oldData: null, // 用于保存原来的数据
       currentData: this.choices // 当前数据
-    };
+    }
   },
   computed: {
     classes () {
@@ -549,13 +549,35 @@ export default {
   },
 
   watch: {
+      // value支持 {label, value} 形式
       value (val) {
-          this.model = val;
-          if (val === '') this.query = '';
+        this.model = val;
+        if (val === '') this.query = '';
       },
-      label (val) {
+      label: {
+        handler (val) {
           this.currentLabel = val;
-          this.updateLabel();
+          if (val) {
+            if (this.multiple && this.value) {
+              var m = []
+              for(let i=0; i<this.value.length; i++) {
+                let c = {}
+                let item = val[i]
+                if (item instanceof Object)
+                  m.push(item)
+                else {
+                  c.label = item
+                  c.value = val[i]
+                  m.push(c)
+                }
+              }
+              this.selectedMultiple = m // 需要 value 和 label 都有值,或label 是 [{label: value}, ...]的形式
+            } else {
+              this.selectedSingle = val
+            }
+          }
+        },
+        deep: true
       },
       model () {
           this.$emit('input', this.model);
