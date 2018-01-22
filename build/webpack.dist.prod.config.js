@@ -8,7 +8,7 @@ process.env.NODE_ENV = 'production';
 
 module.exports = merge(webpackBaseConfig, {
     entry: {
-        main: './src/index.js'
+        main: ['babel-polyfill', './src/index.js']
     },
     output: {
         path: path.resolve(__dirname, '../dist'),

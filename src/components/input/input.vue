@@ -186,6 +186,11 @@
                 this.$emit('on-keypress', event);
             },
             handleKeyup (event) {
+                var keycode = event.which
+                if(event.ctrlKey && (keycode == 88 || keycode == 89 || keycode == 90) || 
+                    event.keyCode === 46 || event.keyCode ===8) {
+                    this.handleInput(event)
+                }
                 this.$emit('on-keyup', event);
             },
             handleIconClick (event) {
