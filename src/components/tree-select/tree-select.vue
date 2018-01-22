@@ -598,6 +598,12 @@ export default {
           //     });
           // }
       },
+      choices: {
+        handler (val) {
+          this.currentData = val
+        },
+        deep: true
+      },
       visible (val) {
           if (val) {
               // 如果是开始为空时，增加一次远程查询
