@@ -187,7 +187,7 @@
             },
             handleKeyup (event) {
                 var keycode = event.which
-                if(event.ctrlKey && (keycode == 88 || keycode == 89 || keycode == 90) || 
+                if(event.ctrlKey && (keycode == 88 || keycode == 89 || keycode == 90) ||
                     event.keyCode === 46 || event.keyCode ===8) {
                     this.handleInput(event)
                 }
@@ -207,7 +207,8 @@
             },
             handleInput (event) {
                 let value = event.target.value;
-                if (this.number) value = Number.isNaN(Number(value)) ? value : Number(value);
+                this.setCurrentValue(value);
+                if (this.number) value = Number.isNaN(Number(value)) ? '0' : Number(value);
                 this.$emit('input', value);
                 this.setCurrentValue(value);
                 this.$emit('on-change', event);
@@ -216,7 +217,7 @@
                 this.$emit('on-input-change', event);
             },
             setCurrentValue (value) {
-                if (value === this.currentValue) return;
+                // if (value === this.currentValue) return;
                 this.$nextTick(() => {
                     this.resizeTextarea();
                 });

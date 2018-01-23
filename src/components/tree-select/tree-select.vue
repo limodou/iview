@@ -655,8 +655,8 @@ export default {
             }
             this.focusIndex = 0;
           } else {
-            // 如果有值，则如果oldData为空，则将currentData保存在上面，然后重建树结构
-            if (val) {
+            // 如果有值且可以搜索，则如果oldData为空，则将currentData保存在上面，然后重建树结构
+            if (val && this.filterable) {
                 if (!this.oldData) {
                     this.oldData = this.currentData
                 }
