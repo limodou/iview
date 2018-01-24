@@ -31,7 +31,6 @@
         <Icon type="arrow-down-b" :class="[prefixCls + '-arrow']" v-if="!remote"></Icon>
       </slot>
     </div>
-    <transition :name="transitionName">
         <Drop
           :style="{width: dropWidth}"
             :class="dropdownCls"
@@ -55,7 +54,6 @@
             </ul>
             <ul v-show="loading" :class="[prefixCls + '-loading']">{{ localeLoadingText }}</ul>
         </Drop>
-    </transition>
   </div>
 </template>
 

@@ -1,5 +1,4 @@
 <template>
-    <collapse-transition>
         <ul :class="classes">
             <li>
                 <span :class="arrowClasses" @click="handleExpand">
@@ -25,7 +24,6 @@
                 </Tree-node>
             </li>
         </ul>
-    </collapse-transition>
 </template>
 <script>
     import Checkbox from '../checkbox/checkbox.vue';
