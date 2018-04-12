@@ -5,7 +5,7 @@
     import Vue from 'vue';
     const isServer = Vue.prototype.$isServer;
     import { getStyle } from '../../utils/assist';
-    const Popper = isServer ? function() {} : require('popper.js');  // eslint-disable-line
+    const Popper = isServer ? function() {} : require('popper.js/dist/umd/popper.js');  // eslint-disable-line
 
     export default {
         name: 'Drop',
@@ -21,7 +21,8 @@
         data () {
             return {
                 popper: null,
-                width: ''
+                width: '',
+                popperStatus: false
             };
         },
         computed: {
@@ -37,18 +38,27 @@
                 if (this.popper) {
                     this.$nextTick(() => {
                         this.popper.update();
+                        this.popperStatus = true;
                     });
                 } else {
                     this.$nextTick(() => {
                         this.popper = new Popper(this.$parent.$refs.reference, this.$el, {
-                            gpuAcceleration: false,
                             placement: this.placement,
-                            boundariesPadding: 0,
-                            forceAbsolute: true,
-                            boundariesElement: 'body'
-                        });
-                        this.popper.onCreate(popper => {
-                            this.resetTransformOrigin(popper);
+                            modifiers: {
+                                computeStyle:{
+                                    gpuAcceleration: false
+                                },
+                                preventOverflow :{
+                                    boundariesElement: 'viewport'
+                                }
+                            },
+                            onCreate:()=>{
+                                this.resetTransformOrigin();
+                                this.$nextTick(this.popper.update());
+                            },
+                            onUpdate:()=>{
+                                this.resetTransformOrigin();
+                            }
                         });
                     });
                 }
@@ -59,20 +69,23 @@
             },
             destroy () {
                 if (this.popper) {
-                    this.resetTransformOrigin(this.popper);
                     setTimeout(() => {
-                        if (this.popper) {
+                        if (this.popper && !this.popperStatus) {
                             this.popper.destroy();
                             this.popper = null;
                         }
+                        this.popperStatus = false;
                     }, 300);
                 }
             },
-            resetTransformOrigin(popper) {
-                let placementMap = {top: 'bottom', bottom: 'top'};
-                let placement = popper._popper.getAttribute('x-placement').split('-')[0];
-                let origin = placementMap[placement];
-                popper._popper.style.transformOrigin = `center ${ origin }`;
+            resetTransformOrigin() {
+                let x_placement = this.popper.popper.getAttribute('x-placement');
+                let placementStart = x_placement.split('-')[0];
+                let placementEnd = x_placement.split('-')[1];
+                const leftOrRight = x_placement === 'left' || x_placement === 'right';
+                if(!leftOrRight){
+                    this.popper.popper.style.transformOrigin = placementStart==='bottom' || ( placementStart !== 'top' && placementEnd === 'start') ? 'center top' : 'center bottom';
+                }
             }
         },
         created () {

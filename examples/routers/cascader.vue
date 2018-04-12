@@ -1,51 +1,57 @@
 <template>
-    <Cascader v-model="value3" :data="data" filterable @on-change="hc"></Cascader>
+    <div>
+        <Cascader v-model="value3" :data="data" filterable style="width: 400px"></Cascader>
+        <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+        <Cascader v-model="value3" :data="data" filterable style="width: 400px"></Cascader>
+        <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+        <Cascader v-model="value3" :data="data" filterable style="width: 400px"></Cascader>
+    </div>
 </template>
 <script>
     export default {
         data () {
             return {
                 data: [{
-                    value: 'beijing',
+                    value: 1,
                     label: '北京',
                     children: [
                         {
-                            value: 'gugong',
+                            value: 11,
                             label: '故宫'
                         },
                         {
-                            value: 'tiantan',
+                            value: 12,
                             label: '天坛'
                         },
                         {
-                            value: 'wangfujing',
+                            value: 13,
                             label: '王府井'
                         }
                     ]
                 }, {
-                    value: 'jiangsu',
+                    value: 2,
                     label: '江苏',
                     children: [
                         {
-                            value: 'nanjing',
+                            value: 21,
                             label: '南京',
                             children: [
                                 {
-                                    value: 'fuzimiao',
+                                    value: 211,
                                     label: '夫子庙',
                                 }
                             ]
                         },
                         {
-                            value: 'suzhou',
+                            value: 22,
                             label: '苏州',
                             children: [
                                 {
-                                    value: 'zhuozhengyuan',
+                                    value: 221,
                                     label: '拙政园',
                                 },
                                 {
-                                    value: 'shizilin',
+                                    value: 222,
                                     label: '狮子林',
                                 }
                             ]
@@ -53,11 +59,6 @@
                     ],
                 }],
                 value3: []
-            }
-        },
-        methods: {
-            hc (a,b) {
-                console.log(a,b)
             }
         }
     }
