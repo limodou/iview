@@ -35,7 +35,7 @@ export default {
                             gpuAcceleration: false,
                         },
                         preventOverflow :{
-                            boundariesElement: 'viewport'
+                            boundariesElement: 'window'
                         }
                     }
                 };
@@ -91,14 +91,14 @@ export default {
             if (!options.modifiers.offset) {
                 options.modifiers.offset = {};
             }
-            options.modifiers.offset = this.offset;
+            options.modifiers.offset.offset = this.offset;
             options.onCreate =()=>{
                 this.$nextTick(this.updatePopper);
                 this.$emit('created', this);
             };
 
             this.popperJS = new Popper(reference, popper, options);
-            
+
         },
         updatePopper() {
             if (isServer) return;
@@ -110,6 +110,10 @@ export default {
             this.popperJS.destroy();
             this.popperJS = null;
         }
+    },
+    updated (){
+        this.$nextTick(()=>this.updatePopper());
+
     },
     beforeDestroy() {
         if (isServer) return;
