@@ -52,7 +52,7 @@ import {Row, Col} from './components/grid';
 import {Select, Option, OptionGroup} from './components/select';
 import locale from './locale/index';
 import {shim} from './utils/shim';
-import dataset from 'element-dataset'
+import dataset from 'element-dataset';
 import TreeSelect from './components/tree-select';
 
 const components = {
@@ -167,8 +167,8 @@ if (typeof window !== 'undefined' && window.Vue) {
 }
 
 // shim
-shim()
-dataset()
+shim();
+dataset();
 
 const API = {
     version: process.env.VERSION, // eslint-disable-line no-undef

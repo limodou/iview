@@ -45,7 +45,6 @@
     "deepmerge": "^2.1.0",
     "element-dataset": "^2.2.6",
     "element-resize-detector": "^1.1.14",
-    "js-calendar": "^1.2.3",
     "lodash.throttle": "^4.1.1",
     "popper.js": "^1.14.1",
     "tinycolor2": "^1.4.1"
@@ -87,6 +86,7 @@
     "gulp-rename": "^1.2.2",
     "html-loader": "^0.5.5",
     "html-webpack-plugin": "^3.0.6",
+    "js-calendar": "^1.2.3",
     "karma": "^2.0.0",
     "karma-chrome-launcher": "^2.2.0",
     "karma-coverage": "^1.1.1",
