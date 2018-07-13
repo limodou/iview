@@ -32,7 +32,6 @@
       </slot>
     </div>
         <Drop
-          :style="{width: dropWidth}"
             :class="dropdownCls"
             v-show="dropVisible"
             :placement="placement"
@@ -197,7 +196,6 @@ export default {
       slotChangeDuration: false,    // if slot change duration and in multiple, set true and after slot change, set false
       model: this.value,
       currentLabel: this.label,
-      dropWidth: '',
       oldData: null, // 用于保存原来的数据
       currentData: this.choices // 当前数据
     }
@@ -676,10 +674,6 @@ export default {
     if (this.multiple) {
       if (!this.model) this.model = []
     }
-  },
-
-  mounted () {
-    this.dropWidth = `${parseInt(getStyle(this.$el, 'width'))}px`
   }
 }
 </script>

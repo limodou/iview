@@ -45,7 +45,6 @@
     "element-dataset": "^2.2.6",
     "element-resize-detector": "^1.1.12",
     "lodash.throttle": "^4.1.1",
-    "popper.js": "^0.6.4",
     "tinycolor2": "^1.4.1"
   },
   "peerDependencies": {
@@ -119,7 +118,7 @@
     "last 3 Chrome versions",
     "last 3 Firefox versions",
     "Safari >= 10",
-    "Explorer >= 11",
+    "Explorer >= 9",
     "Edge >= 12",
     "iOS >= 10",
     "Android >= 6"
