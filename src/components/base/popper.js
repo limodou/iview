@@ -3,8 +3,7 @@
  * */
 import Vue from 'vue';
 const isServer = Vue.prototype.$isServer;
-// const Popper = isServer ? function() {} : require('popper.js/dist/umd/popper.js');  // eslint-disable-line
-import Popper from '../popper';
+const Popper = isServer ? function() {} : require('../popper.js');  // eslint-disable-line
 
 export default {
     props: {

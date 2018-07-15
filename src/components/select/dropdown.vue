@@ -5,8 +5,7 @@
     import Vue from 'vue';
     const isServer = Vue.prototype.$isServer;
     import { getStyle } from '../../utils/assist';
-    // const Popper = isServer ? function() {} : require('popper.js/dist/umd/popper.js');  // eslint-disable-line
-    import Popper from '../popper';
+    const Popper = isServer ? function() {} : require('../popper.js');  // eslint-disable-line
 
     export default {
         name: 'Drop',
@@ -64,7 +63,7 @@
                     });
                 }
                 // set a height for parent is Modal and Select's width is 100%
-                if (this.$parent.$options.name === 'iSelect') {
+                if (this.$parent.$options.name === 'iSelect' || this.$parent.$options.name === 'TreeSelect') {
                     this.width = parseInt(getStyle(this.$parent.$el, 'width'));
                 }
             },
