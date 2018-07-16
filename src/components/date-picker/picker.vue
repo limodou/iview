@@ -179,9 +179,11 @@
             },
             placement: {
                 validator (value) {
-                    return oneOf(value, ['top', 'top-start', 'top-end', 'bottom', 'bottom-start', 'bottom-end', 'left', 'left-start', 'left-end', 'right', 'right-start', 'right-end']);
+                    // return oneOf(value, ['top', 'top-start', 'top-end', 'bottom', 'bottom-start', 'bottom-end', 'left', 'left-start', 'left-end', 'right', 'right-start', 'right-end']);
+                    return oneOf(value, ['top', 'bottom']);
                 },
-                default: 'bottom-start'
+                // default: 'bottom-start'
+                default: 'bottom'
             },
             transfer: {
                 type: Boolean,
