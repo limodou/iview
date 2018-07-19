@@ -41,17 +41,10 @@
             size: {
                 validator (value) {
                     return oneOf(value, ['large', 'small', 'default']);
-                },
-                default () {
-                    return this.$IVIEW.size === '' ? 'default' : this.$IVIEW.size;
                 }
             },
             name: {
                 type: String
-            },
-            loading: {
-                type: Boolean,
-                default: false
             }
         },
         data () {
@@ -66,8 +59,7 @@
                     {
                         [`${prefixCls}-checked`]: this.currentValue === this.trueValue,
                         [`${prefixCls}-disabled`]: this.disabled,
-                        [`${prefixCls}-${this.size}`]: !!this.size,
-                        [`${prefixCls}-loading`]: this.loading,
+                        [`${prefixCls}-${this.size}`]: !!this.size
                     }
                 ];
             },
@@ -78,7 +70,7 @@
         methods: {
             toggle (event) {
                 event.preventDefault();
-                if (this.disabled || this.loading) {
+                if (this.disabled) {
                     return false;
                 }
 

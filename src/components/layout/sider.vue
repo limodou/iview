@@ -3,7 +3,7 @@
         :class="wrapClasses" 
         :style="wrapStyles">
         <span v-show="showZeroTrigger" @click="toggleCollapse" :class="zeroWidthTriggerClasses">
-            <i class="ivu-icon ivu-icon-ios-menu"></i>
+            <i class="ivu-icon ivu-icon-navicon-round"></i>
         </span>
         <div :class="childClasses">
             <slot></slot>
@@ -98,7 +98,7 @@
             triggerIconClasses () {
                 return [
                     'ivu-icon',
-                    `ivu-icon-ios-arrow-${this.reverseArrow ? 'forward' : 'back'}`,
+                    `ivu-icon-chevron-${this.reverseArrow ? 'right' : 'left'}`,
                     `${prefixCls}-trigger-icon`,
                 ];
             },

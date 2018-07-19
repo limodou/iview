@@ -31,54 +31,52 @@
                 ></i-input>
             </slot>
         </div>
-        <transition name="transition-drop">
-            <Drop
-                @click.native="handleTransferClick"
-                v-show="opened"
-                :class="{ [prefixCls + '-transfer']: transfer }"
-                :placement="placement"
-                ref="drop"
-                :data-transfer="transfer"
-                v-transfer-dom>
-                <div>
-                    <component
-                        :is="panel"
-                        ref="pickerPanel"
-                        :visible="visible"
-                        :showTime="type === 'datetime' || type === 'datetimerange'"
-                        :confirm="isConfirm"
-                        :selectionMode="selectionMode"
-                        :steps="steps"
-                        :format="format"
-                        :value="internalValue"
-                        :start-date="startDate"
-                        :split-panels="splitPanels"
-                        :show-week-numbers="showWeekNumbers"
-                        :picker-type="type"
-                        :multiple="multiple"
-                        :focused-date="focusedDate"
+        <Drop
+            @click.native="handleTransferClick"
+            v-show="opened"
+            :class="{ [prefixCls + '-transfer']: transfer }"
+            :placement="placement"
+            ref="drop"
+            :data-transfer="transfer"
+            v-transfer-dom>
+            <div>
+                <component
+                    :is="panel"
+                    ref="pickerPanel"
+                    :visible="visible"
+                    :showTime="type === 'datetime' || type === 'datetimerange'"
+                    :confirm="isConfirm"
+                    :selectionMode="selectionMode"
+                    :steps="steps"
+                    :format="format"
+                    :value="internalValue"
+                    :start-date="startDate"
+                    :split-panels="splitPanels"
+                    :show-week-numbers="showWeekNumbers"
+                    :picker-type="type"
+                    :multiple="multiple"
+                    :focused-date="focusedDate"
 
-                        :time-picker-options="timePickerOptions"
+                    :time-picker-options="timePickerOptions"
 
-                        v-bind="ownPickerProps"
+                    v-bind="ownPickerProps"
 
-                        @on-pick="onPick"
-                        @on-pick-clear="handleClear"
-                        @on-pick-success="onPickSuccess"
-                        @on-pick-click="disableClickOutSide = true"
-                        @on-selection-mode-change="onSelectionModeChange"
-                    ></component>
-                </div>
-            </Drop>
-        </transition>
+                    @on-pick="onPick"
+                    @on-pick-clear="handleClear"
+                    @on-pick-success="onPickSuccess"
+                    @on-pick-click="disableClickOutSide = true"
+                    @on-selection-mode-change="onSelectionModeChange"
+                ></component>
+            </div>
+        </Drop>
     </div>
 </template>
 <script>
 
 
-    import iInput from '../../components/input/input.vue';
-    import Drop from '../../components/select/dropdown.vue';
-    import {directive as clickOutside} from 'v-click-outside-x';
+    import iInput from '../input/input.vue';
+    import Drop from '../select/dropdown.vue';
+    import vClickOutside from 'v-click-outside-x';
     import TransferDom from '../../directives/transfer-dom';
     import { oneOf } from '../../utils/assist';
     import { DEFAULT_FORMATS, RANGE_SEPARATOR, TYPE_VALUE_RESOLVER_MAP, getDayCountOfMonth } from './util';
@@ -120,7 +118,7 @@
     export default {
         mixins: [ Emitter ],
         components: { iInput, Drop },
-        directives: { clickOutside, TransferDom },
+        directives: { clickOutside: vClickOutside.directive, TransferDom },
         props: {
             format: {
                 type: String
@@ -171,9 +169,6 @@
             size: {
                 validator (value) {
                     return oneOf(value, ['small', 'large', 'default']);
-                },
-                default () {
-                    return this.$IVIEW.size === '' ? 'default' : this.$IVIEW.size;
                 }
             },
             placeholder: {
@@ -190,9 +185,7 @@
             },
             transfer: {
                 type: Boolean,
-                default () {
-                    return this.$IVIEW.transfer === '' ? false : this.$IVIEW.transfer;
-                }
+                default: false
             },
             name: {
                 type: String
@@ -266,8 +259,8 @@
             },
             iconType () {
                 let icon = 'ios-calendar-outline';
-                if (this.type === 'time' || this.type === 'timerange') icon = 'ios-time-outline';
-                if (this.showClose) icon = 'ios-close-circle';
+                if (this.type === 'time' || this.type === 'timerange') icon = 'ios-clock-outline';
+                if (this.showClose) icon = 'ios-close';
                 return icon;
             },
             transition () {
@@ -675,7 +668,7 @@
                 this.reset();
             },
             focus() {
-                this.$refs.input && this.$refs.input.focus();
+                this.$refs.input.focus();
             }
         },
         watch: {

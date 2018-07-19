@@ -1,7 +1,7 @@
 <template>
     <span :class="classes">
         <img :src="src" v-if="src">
-        <Icon :type="icon" :custom="customIcon" v-else-if="icon || customIcon"></Icon>
+        <Icon :type="icon" v-else-if="icon"></Icon>
         <span ref="children" :class="[prefixCls + '-string']" :style="childrenStyle" v-else><slot></slot></span>
     </span>
 </template>
@@ -25,20 +25,14 @@
                 validator (value) {
                     return oneOf(value, ['small', 'large', 'default']);
                 },
-                default () {
-                    return this.$IVIEW.size === '' ? 'default' : this.$IVIEW.size;
-                }
+                default: 'default'
             },
             src: {
                 type: String
             },
             icon: {
                 type: String
-            },
-            customIcon: {
-                type: String,
-                default: ''
-            },
+            }
         },
         data () {
             return {
@@ -56,7 +50,7 @@
                     `${prefixCls}-${this.size}`,
                     {
                         [`${prefixCls}-image`]: !!this.src,
-                        [`${prefixCls}-icon`]: !!this.icon || !!this.customIcon
+                        [`${prefixCls}-icon`]: !!this.icon
                     }
                 ];
             },

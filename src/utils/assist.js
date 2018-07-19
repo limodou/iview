@@ -138,7 +138,7 @@ function deepCopy(data) {
 export {deepCopy};
 
 // scrollTop animation
-export function scrollTop(el, from = 0, to, duration = 500, endCallback) {
+export function scrollTop(el, from = 0, to, duration = 500) {
     if (!window.requestAnimationFrame) {
         window.requestAnimationFrame = (
             window.webkitRequestAnimationFrame ||
@@ -153,10 +153,7 @@ export function scrollTop(el, from = 0, to, duration = 500, endCallback) {
     const step = Math.ceil(difference / duration * 50);
 
     function scroll(start, end, step) {
-        if (start === end) {
-            endCallback && endCallback();
-            return;
-        }
+        if (start === end) return;
 
         let d = (start + step > end) ? end : start + step;
         if (start > end) {
@@ -325,5 +322,3 @@ export function setMatchMedia () {
         window.matchMedia = window.matchMedia || matchMediaPolyfill;
     }
 }
-
-export const sharpMatcherRegx = /#([^#]+)$/;

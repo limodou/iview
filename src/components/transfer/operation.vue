@@ -1,10 +1,10 @@
 <template>
     <div :class="prefixCls + '-operation'">
         <i-button type="primary" size="small" :disabled="!rightActive" @click.native="moveToLeft">
-            <Icon type="ios-arrow-back"></Icon> <span>{{ operations[0] }}</span>
+            <Icon type="ios-arrow-left"></Icon> {{ operations[0] }}
         </i-button>
         <i-button type="primary" size="small" :disabled="!leftActive" @click.native="moveToRight">
-            <span>{{ operations[1] }}</span> <Icon type="ios-arrow-forward"></Icon>
+            {{ operations[1] }} <Icon type="ios-arrow-right"></Icon>
         </i-button>
     </div>
 </template>

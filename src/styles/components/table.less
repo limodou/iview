@@ -158,16 +158,6 @@
             text-overflow: ellipsis;
         }
 
-        &-tooltip{
-            width: 100%;
-            &-content{
-                display: block;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                white-space: nowrap;
-            }
-        }
-
         &-with-expand{
             height: 47px;
             line-height: 47px;
@@ -188,13 +178,6 @@
         &-sort{
             cursor: pointer;
             user-select: none;
-        }
-
-        // #3159
-        &-with-selection{
-            .@{checkbox-prefix-cls}-wrapper{
-                margin-right: 0;
-            }
         }
     }
     &-hidden{
@@ -350,7 +333,6 @@
         display: inline-block;
         cursor: pointer;
         position: relative;
-        //top: 1px;
 
         i{
             color: @btn-disable-color;

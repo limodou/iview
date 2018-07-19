@@ -79,44 +79,24 @@
             updateOpenKeys (name) {
                 let names = [...this.openedNames];
                 const index = names.indexOf(name);
-                if (this.accordion) findComponentsDownward(this, 'Submenu').forEach(item => {
-                    item.opened = false;
-                });
                 if (index >= 0) {
-                    let currentSubmenu = null;
-                    findComponentsDownward(this, 'Submenu').forEach(item => {
-                        if (item.name === name) {
-                            currentSubmenu = item;
-                            item.opened = false;
-                        }
-                    });
-                    findComponentsUpward(currentSubmenu, 'Submenu').forEach(item => {
-                        item.opened = true;
-                    });
-                    findComponentsDownward(currentSubmenu, 'Submenu').forEach(item => {
-                        item.opened = false;
-                    });
+                    names.splice(index, 1);
                 } else {
                     if (this.accordion) {
                         let currentSubmenu = null;
+                        names = [];
                         findComponentsDownward(this, 'Submenu').forEach(item => {
-                            if (item.name === name) {
-                                currentSubmenu = item;
-                                item.opened = true;
-                            }
+                            if (item.name === name) currentSubmenu = item;
                         });
                         findComponentsUpward(currentSubmenu, 'Submenu').forEach(item => {
-                            item.opened = true;
-                        });
-                    } else {
-                        findComponentsDownward(this, 'Submenu').forEach(item => {
-                            if (item.name === name) item.opened = true;
+                            names.push(item.name);
                         });
                     }
+                    names.push(name);
                 }
-                let openedNames = findComponentsDownward(this, 'Submenu').filter(item => item.opened).map(item => item.name);
-                this.openedNames = [...openedNames];
-                this.$emit('on-open-change', openedNames);
+                this.openedNames = names;
+                this.updateOpened();
+                this.$emit('on-open-change', this.openedNames);
             },
             updateOpened () {
                 const items = findComponentsDownward(this, 'Submenu');

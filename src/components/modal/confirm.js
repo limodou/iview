@@ -64,22 +64,6 @@ Modal.newInstance = properties => {
                     }
                 }, [
                     h('div', {
-                        domProps: {
-                            innerHTML: this.body
-                        }
-                    })
-                ]);
-            }
-
-            // when render with no title, hide head
-            let head_render;
-            if (this.title) {
-                head_render = h('div', {
-                    attrs: {
-                        class: `${prefixCls}-head`
-                    }
-                }, [
-                    h('div', {
                         class: this.iconTypeCls
                     }, [
                         h('i', {
@@ -87,11 +71,8 @@ Modal.newInstance = properties => {
                         })
                     ]),
                     h('div', {
-                        attrs: {
-                            class: `${prefixCls}-head-title`
-                        },
                         domProps: {
-                            innerHTML: this.title
+                            innerHTML: this.body
                         }
                     })
                 ]);
@@ -117,7 +98,20 @@ Modal.newInstance = properties => {
                         class: prefixCls
                     }
                 }, [
-                    head_render,
+                    h('div', {
+                        attrs: {
+                            class: `${prefixCls}-head`
+                        }
+                    }, [
+                        h('div', {
+                            attrs: {
+                                class: `${prefixCls}-head-title`
+                            },
+                            domProps: {
+                                innerHTML: this.title
+                            }
+                        })
+                    ]),
                     body_render,
                     h('div', {
                         attrs: {
@@ -130,8 +124,8 @@ Modal.newInstance = properties => {
         computed: {
             iconTypeCls () {
                 return [
-                    `${prefixCls}-head-icon`,
-                    `${prefixCls}-head-icon-${this.iconType}`
+                    `${prefixCls}-body-icon`,
+                    `${prefixCls}-body-icon-${this.iconType}`
                 ];
             },
             iconNameCls () {
@@ -198,19 +192,19 @@ Modal.newInstance = properties => {
 
             switch (props.icon) {
                 case 'info':
-                    modal.$parent.iconName = 'ios-information-circle';
+                    modal.$parent.iconName = 'information-circled';
                     break;
                 case 'success':
-                    modal.$parent.iconName = 'ios-checkmark-circle';
+                    modal.$parent.iconName = 'checkmark-circled';
                     break;
                 case 'warning':
-                    modal.$parent.iconName = 'ios-alert';
+                    modal.$parent.iconName = 'android-alert';
                     break;
                 case 'error':
-                    modal.$parent.iconName = 'ios-close-circle';
+                    modal.$parent.iconName = 'close-circled';
                     break;
                 case 'confirm':
-                    modal.$parent.iconName = 'ios-help-circle';
+                    modal.$parent.iconName = 'help-circled';
                     break;
             }
 

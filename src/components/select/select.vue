@@ -47,32 +47,31 @@
                 />
             </slot>
         </div>
-        <transition name="transition-drop">
-            <Drop
-                :class="dropdownCls"
-                v-show="dropVisible"
-                :placement="placement"
-                ref="dropdown"
-                :data-transfer="transfer"
-                v-transfer-dom
-            >
-                <ul v-show="showNotFoundLabel" :class="[prefixCls + '-not-found']"><li>{{ localeNotFoundText }}</li></ul>
-                <ul :class="prefixCls + '-dropdown-list'">
-                    <functional-options
-                        v-if="(!remote) || (remote && !loading)"
-                        :options="selectOptions"
-                        :slot-update-hook="updateSlotOptions"
-                        :slot-options="slotOptions"
-                    ></functional-options>
-                </ul>
-                <ul v-show="loading" :class="[prefixCls + '-loading']">{{ localeLoadingText }}</ul>
-            </Drop>
-        </transition>
+        <Drop
+            :class="dropdownCls"
+            v-show="dropVisible"
+            :placement="placement"
+            ref="dropdown"
+            :data-transfer="transfer"
+            v-transfer-dom
+        >
+            <ul v-show="showNotFoundLabel" :class="[prefixCls + '-not-found']"><li>{{ localeNotFoundText }}</li></ul>
+            <ul :class="prefixCls + '-dropdown-list'">
+                <functional-options
+                    v-if="(!remote) || (remote && !loading)"
+                    :options="selectOptions"
+                    :slot-update-hook="updateSlotOptions"
+                    :slot-options="slotOptions"
+                ></functional-options>
+            </ul>
+            <ul v-show="loading" :class="[prefixCls + '-loading']">{{ localeLoadingText }}</ul>
+        </Drop>
     </div>
 </template>
 <script>
+    import Icon from '../icon';
     import Drop from './dropdown.vue';
-    import {directive as clickOutside} from 'v-click-outside-x';
+    import vClickOutside from 'v-click-outside-x';
     import TransferDom from '../../directives/transfer-dom';
     import { oneOf } from '../../utils/assist';
     import Emitter from '../../mixins/emitter';
@@ -81,7 +80,7 @@
     import FunctionalOptions from './functional-options.vue';
 
     const prefixCls = 'ivu-select';
-    const optionRegexp = /^i-option$|^Option$/i;
+    const optionRegexp = /^i-option$|^Option$/;
     const optionGroupRegexp = /option-?group/i;
 
     const findChild = (instance, checkFn) => {
@@ -98,7 +97,7 @@
         const opts = node.componentOptions;
         if (opts && opts.tag.match(optionRegexp)) return [node];
         if (!node.children && (!opts || !opts.children)) return [];
-        const children = [...(node.children || []), ...(opts && opts.children || [])];
+        const children = [...(node.children || []),  ...(opts && opts.children || [])];
         const options = children.reduce(
             (arr, el) => [...arr, ...findOptionsInVNode(el)], []
         ).filter(Boolean);
@@ -122,26 +121,13 @@
         };
     };
 
-    const getNestedProperty = (obj, path) => {
-        const keys = path.split('.');
-        return keys.reduce((o, key) => o && o[key] || null, obj);
-    };
-
-    const getOptionLabel = option => {
-        if (option.componentOptions.propsData.label) return option.componentOptions.propsData.label;
-        const textContent = (option.componentOptions.children || []).reduce((str, child) => str + (child.text || ''), '');
-        const innerHTML = getNestedProperty(option, 'data.domProps.innerHTML');
-        return textContent || (typeof innerHTML === 'string' ? innerHTML : '');
-    };
-
-
     const ANIMATION_TIMEOUT = 300;
 
     export default {
         name: 'iSelect',
         mixins: [ Emitter, Locale ],
-        components: { FunctionalOptions, Drop, SelectHead },
-        directives: { clickOutside, TransferDom },
+        components: { FunctionalOptions, Drop, Icon, SelectHead },
+        directives: { clickOutside: vClickOutside.directive, TransferDom },
         props: {
             value: {
                 type: [String, Number, Array],
@@ -187,9 +173,6 @@
             size: {
                 validator (value) {
                     return oneOf(value, ['small', 'large', 'default']);
-                },
-                default () {
-                    return this.$IVIEW.size === '' ? 'default' : this.$IVIEW.size;
                 }
             },
             labelInValue: {
@@ -207,9 +190,7 @@
             },
             transfer: {
                 type: Boolean,
-                default () {
-                    return this.$IVIEW.transfer === '' ? false : this.$IVIEW.transfer;
-                }
+                default: false
             },
             // Use for AutoComplete
             autoComplete: {
@@ -227,20 +208,19 @@
             this.$on('on-select-selected', this.onOptionClick);
 
             // set the initial values if there are any
-            if (!this.remote && this.selectOptions.length > 0){
-                this.values = this.getInitialValue().map(value => {
-                    if (typeof value !== 'number' && !value) return null;
-                    return this.getOptionData(value);
-                }).filter(Boolean);
+            if (this.values.length > 0 && !this.remote && this.selectOptions.length > 0){
+                this.values = this.values.map(this.getOptionData).filter(Boolean);
             }
 
-            this.checkUpdateStatus();
+            if (this.values.length > 0 && this.selectOptions.length === 0){
+                this.hasExpectedValue = this.values;
+            }
         },
         data () {
 
             return {
                 prefixCls: prefixCls,
-                values: [],
+                values: this.getInitialValue(),
                 dropDownWidth: 0,
                 visible: false,
                 focusIndex: -1,
@@ -348,14 +328,14 @@
                     const selectedSlotOption = autoCompleteOptions[currentIndex];
 
                     return slotOptions.map(node => {
-                        if (node === selectedSlotOption || getNestedProperty(node, 'componentOptions.propsData.value') === this.value) return applyProp(node, 'isFocused', true);
+                        if (node === selectedSlotOption) return applyProp(node, 'isFocused', true);
                         return copyChildren(node, (child) => {
                             if (child !== selectedSlotOption) return child;
                             return applyProp(child, 'isFocused', true);
                         });
                     });
                 }
-                let hasDefaultSelected = slotOptions.some(option => this.query === option.key);
+
                 for (let option of slotOptions) {
 
                     const cOptions = option.componentOptions;
@@ -379,10 +359,8 @@
                         if (cOptions.children.length > 0) selectOptions.push({...option});
                     } else {
                         // ignore option if not passing filter
-                        if (!hasDefaultSelected) {
-                            const optionPassesFilter = this.filterable ? this.validateOption(cOptions) : option;
-                            if (!optionPassesFilter) continue;
-                        }
+                        const optionPassesFilter = this.filterable ? this.validateOption(cOptions) : option;
+                        if (!optionPassesFilter) continue;
 
                         optionCounter = optionCounter + 1;
                         selectOptions.push(this.processOption(option, selectedValues, optionCounter === currentIndex));
@@ -415,28 +393,23 @@
             clearSingleSelect(){ // PUBLIC API
                 this.$emit('on-clear');
                 this.hideMenu();
-                if (this.clearable) this.reset();
+                if (this.clearable) this.values = [];
             },
             getOptionData(value){
                 const option = this.flatOptions.find(({componentOptions}) => componentOptions.propsData.value === value);
                 if (!option) return null;
-                const label = getOptionLabel(option);
+                const textContent = option.componentOptions.children.reduce((str, child) => str + (child.text || ''), '');
+                const label = option.componentOptions.propsData.label || textContent || '';
                 return {
                     value: value,
                     label: label,
                 };
             },
             getInitialValue(){
-                const {multiple, remote, value} = this;
+                const {multiple, value} = this;
                 let initialValue = Array.isArray(value) ? value : [value];
-                if (!multiple && (typeof initialValue[0] === 'undefined' || (String(initialValue[0]).trim() === '' && !Number.isFinite(initialValue[0])))) initialValue = [];
-                if (remote && !multiple && value) {
-                    const data = this.getOptionData(value);
-                    this.query = data ? data.label : String(value);
-                }
-                return initialValue.filter((item) => {
-                    return Boolean(item) || item === 0;
-                });
+                if (!multiple && (typeof initialValue[0] === 'undefined' || String(initialValue[0]).trim() === '')) initialValue = [];
+                return initialValue.filter(Boolean);
             },
             processOption(option, values, isFocused){
                 if (!option.componentOptions) return option;
@@ -475,7 +448,7 @@
             },
 
             toggleMenu (e, force) {
-                if (this.disabled) {
+                if (this.disabled || this.autoComplete) {
                     return false;
                 }
 
@@ -495,14 +468,6 @@
                         event.preventDefault();
                         return;
                     }
-
-                    if (this.transfer) {
-                        const {$el} = this.$refs.dropdown;
-                        if ($el === event.target || $el.contains(event.target)) {
-                            return;
-                        }
-                    }
-
 
                     if (this.filterable) {
                         const input = this.$el.querySelector('input[type="text"]');
@@ -640,18 +605,11 @@
             },
             updateSlotOptions(){
                 this.slotOptions = this.$slots.default;
-            },
-            checkUpdateStatus() {
-                if (this.getInitialValue().length > 0 && this.selectOptions.length === 0) {
-                    this.hasExpectedValue = true;
-                }
             }
         },
         watch: {
             value(value){
                 const {getInitialValue, getOptionData, publicValue} = this;
-
-                this.checkUpdateStatus();
 
                 if (value === '') this.values = [];
                 else if (JSON.stringify(value) !== JSON.stringify(publicValue)) {
@@ -661,12 +619,14 @@
             values(now, before){
                 const newValue = JSON.stringify(now);
                 const oldValue = JSON.stringify(before);
-                // v-model is always just the value, event with labelInValue === true
-                const vModelValue = (this.publicValue && this.labelInValue) ?
-                    (this.multiple ? this.publicValue.map(({value}) => value) : this.publicValue.value) :
-                    this.publicValue;
-                const shouldEmitInput = newValue !== oldValue && vModelValue !== this.value;
+                const shouldEmitInput = newValue !== oldValue;
+
                 if (shouldEmitInput) {
+                    // v-model is always just the value, event with labelInValue === true
+                    const vModelValue = this.labelInValue ?
+                        (this.multiple ? this.publicValue.map(({value}) => value)
+                            :
+                            this.publicValue.value) : this.publicValue;
                     this.$emit('input', vModelValue); // to update v-model
                     this.$emit('on-change', this.publicValue);
                     this.dispatch('FormItem', 'on-form-change', this.publicValue);
@@ -731,10 +691,7 @@
                 this.broadcast('Drop', open ? 'on-update-popper' : 'on-destroy-popper');
             },
             selectOptions(){
-                if (this.hasExpectedValue && this.selectOptions.length > 0){
-                    if (this.values.length === 0) {
-                        this.values = this.getInitialValue();
-                    }
+                if (this.hasExpectedValue){
                     this.values = this.values.map(this.getOptionData).filter(Boolean);
                     this.hasExpectedValue = false;
                 }

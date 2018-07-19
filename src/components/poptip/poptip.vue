@@ -3,7 +3,7 @@
         :class="classes"
         @mouseenter="handleMouseenter"
         @mouseleave="handleMouseleave"
-        v-click-outside="handleClose">
+        v-clickoutside="handleClose">
         <div
             :class="[prefixCls + '-rel']"
             ref="reference"
@@ -27,7 +27,7 @@
                     <div :class="[prefixCls + '-arrow']"></div>
                     <div :class="[prefixCls + '-inner']" v-if="confirm">
                         <div :class="[prefixCls + '-body']">
-                            <i class="ivu-icon ivu-icon-ios-help-circle"></i>
+                            <i class="ivu-icon ivu-icon-help-circled"></i>
                             <div :class="[prefixCls + '-body-message']"><slot name="title">{{ title }}</slot></div>
                         </div>
                         <div :class="[prefixCls + '-footer']">
@@ -36,9 +36,9 @@
                         </div>
                     </div>
                     <div :class="[prefixCls + '-inner']" v-if="!confirm">
-                        <div :class="[prefixCls + '-title']" :style="contentPaddingStyle" v-if="showTitle" ref="title"><slot name="title"><div :class="[prefixCls + '-title-inner']">{{ title }}</div></slot></div>
-                        <div :class="[prefixCls + '-body']" :style="contentPaddingStyle">
-                            <div :class="contentClasses"><slot name="content"><div :class="[prefixCls + '-body-content-inner']">{{ content }}</div></slot></div>
+                        <div :class="[prefixCls + '-title']" v-if="showTitle" ref="title"><slot name="title"><div :class="[prefixCls + '-title-inner']">{{ title }}</div></slot></div>
+                        <div :class="[prefixCls + '-body']">
+                            <div :class="[prefixCls + '-body-content']"><slot name="content"><div :class="[prefixCls + '-body-content-inner']">{{ content }}</div></slot></div>
                         </div>
                     </div>
                 </div>
@@ -49,7 +49,7 @@
 <script>
     import Popper from '../base/popper';
     import iButton from '../button/button.vue';
-    import {directive as clickOutside} from 'v-click-outside-x';
+    import clickoutside from '../../directives/clickoutside';
     import TransferDom from '../../directives/transfer-dom';
     import { oneOf } from '../../utils/assist';
     import Locale from '../../mixins/locale';
@@ -59,7 +59,7 @@
     export default {
         name: 'Poptip',
         mixins: [ Popper, Locale ],
-        directives: { clickOutside, TransferDom },
+        directives: { clickoutside, TransferDom },
         components: { iButton },
         props: {
             trigger: {
@@ -96,19 +96,9 @@
             },
             transfer: {
                 type: Boolean,
-                default () {
-                    return this.$IVIEW.transfer === '' ? false : this.$IVIEW.transfer;
-                }
-            },
-            popperClass: {
-                type: String
-            },
-            wordWrap: {
-                type: Boolean,
                 default: false
             },
-            // default by css: 8px 16px
-            padding: {
+            popperClass: {
                 type: String
             }
         },
@@ -159,19 +149,6 @@
                 } else {
                     return this.cancelText;
                 }
-            },
-            contentClasses () {
-                return [
-                    `${prefixCls}-body-content`,
-                    {
-                        [`${prefixCls}-body-content-word-wrap`]: this.wordWrap
-                    }
-                ];
-            },
-            contentPaddingStyle () {
-                const styles = {};
-                if (this.padding !== '') styles['padding'] = this.padding;
-                return styles;
             }
         },
         methods: {

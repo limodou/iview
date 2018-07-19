@@ -24,14 +24,12 @@
         user-select: none;
         cursor: pointer;
         font-family: Arial;
-        font-weight: 500;
         border: 1px solid @border-color-base;
         border-radius: @btn-border-radius;
         //transition: all @transition-time @ease-in-out;
         transition: border @transition-time @ease-in-out, color @transition-time @ease-in-out;
 
         a {
-            font-family: "Monospaced Number";
             margin: 0 6px;
             text-decoration: none;
             color: @text-color;
@@ -46,10 +44,11 @@
         }
 
         &-active {
+            background-color: @primary-color;
             border-color: @primary-color;
 
             a, &:hover a {
-                color: @primary-color;
+                color: #fff;
             }
         }
     }
@@ -79,25 +78,27 @@
 
     &-item-jump-prev:hover {
         i:after {
-            content: "\F115";
-            margin-left: -8px;
+            content: "\F3D2";
         }
     }
 
     &-item-jump-next:hover {
         i:after {
-            content: "\F11F";
-            margin-left: -8px;
+            content: "\F3D3";
         }
     }
 
     &-prev{
-        margin-right: 4px;
+        margin-right: 8px;
     }
 
     &-item-jump-prev,
     &-item-jump-next{
         margin-right: 4px;
+    }
+
+    &-next{
+        margin-left: 4px;
     }
 
     &-prev,
@@ -106,7 +107,6 @@
     &-item-jump-next {
         display: inline-block;
         vertical-align: middle;
-        user-select: none;
         //float: left;
         min-width: @btn-circle-size;
         height: @btn-circle-size;
@@ -119,10 +119,6 @@
         border: 1px solid @border-color-base;
         border-radius: @btn-border-radius;
         transition: all @transition-time @ease-in-out;
-    }
-    &-item-jump-prev,
-    &-item-jump-next{
-        border-color: transparent;
     }
 
     &-prev,
@@ -227,10 +223,6 @@
         span{
             padding: 0 8px 0 2px;
         }
-    }
-
-    &-custom-text, &-custom-text:hover{
-        border-color: transparent;
     }
 }
 

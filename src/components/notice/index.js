@@ -10,10 +10,10 @@ let noticeInstance;
 let name = 1;
 
 const iconTypes = {
-    'info': 'ios-information-circle',
-    'success': 'ios-checkmark-circle',
-    'warning': 'ios-alert',
-    'error': 'ios-close-circle'
+    'info': 'information-circled',
+    'success': 'checkmark-circled',
+    'warning': 'android-alert',
+    'error': 'close-circled'
 };
 
 function getNoticeInstance () {
@@ -57,12 +57,11 @@ function notice (type, options) {
         `;
     } else {
         const iconType = iconTypes[type];
-        const outlineIcon = with_desc === '' ? '' : '-outline';
         withIcon = true;
         content = `
             <div class="${prefixCls}-custom-content ${prefixCls}-with-icon ${prefixCls}-with-${type} ${with_desc}">
                 <span class="${prefixCls}-icon ${prefixCls}-icon-${type}">
-                    <i class="${iconPrefixCls} ${iconPrefixCls}-${iconType}${outlineIcon}"></i>
+                    <i class="${iconPrefixCls} ${iconPrefixCls}-${iconType}"></i>
                 </span>
                 <div class="${prefixCls}-title">${title}</div>
                 <div class="${prefixCls}-desc">${desc}</div>

@@ -8,7 +8,6 @@
         :placeholder="placeholder"
         :size="size"
         :placement="placement"
-        :value="currentValue"
         filterable
         remote
         auto-complete
@@ -73,9 +72,6 @@
             size: {
                 validator (value) {
                     return oneOf(value, ['small', 'large', 'default']);
-                },
-                default () {
-                    return this.$IVIEW.size === '' ? 'default' : this.$IVIEW.size;
                 }
             },
             icon: {
@@ -93,9 +89,7 @@
             },
             transfer: {
                 type: Boolean,
-                default () {
-                    return this.$IVIEW.transfer === '' ? false : this.$IVIEW.transfer;
-                }
+                default: false
             },
             name: {
                 type: String
@@ -152,19 +146,22 @@
             },
             handleChange (val) {
                 this.currentValue = val;
+                this.$refs.select.model = val;
                 this.$refs.input.blur();
                 this.$emit('on-select', val);
             },
             handleFocus (event) {
+                this.$refs.select.visible = true;
                 this.$emit('on-focus', event);
             },
             handleBlur (event) {
+                this.$refs.select.visible = false;
                 this.$emit('on-blur', event);
             },
             handleClear () {
                 if (!this.clearable) return;
                 this.currentValue = '';
-                this.$refs.select.reset();
+                this.$refs.select.model = '';
             }
         }
     };

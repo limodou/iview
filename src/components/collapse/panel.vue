@@ -1,7 +1,7 @@
 <template>
     <div :class="itemClasses">
         <div :class="headerClasses" @click="toggle">
-            <Icon type="ios-arrow-forward" v-if="!hideArrow"></Icon>
+            <Icon type="arrow-right-b"></Icon>
             <slot></slot>
         </div>
         <collapse-transition>
@@ -22,10 +22,6 @@
         props: {
             name: {
                 type: String
-            },
-            hideArrow: {
-                type: Boolean,
-                default: false
             }
         },
         data () {

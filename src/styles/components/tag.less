@@ -1,5 +1,5 @@
 @tag-prefix-cls: ~"@{css-prefix}tag";
-@tag-close-prefix-cls: ivu-icon-ios-close;
+@tag-close-prefix-cls: ivu-icon-ios-close-empty;
 
 .@{tag-prefix-cls} {
     display: inline-block;
@@ -28,19 +28,19 @@
     }
 
     &-color{
-        &-error{
+        &-red{
             color: @error-color !important;
             border-color: @error-color;
         }
-        &-success{
+        &-green{
             color: @success-color !important;
             border-color: @success-color;
         }
-        &-primary{
+        &-blue{
             color: @link-color !important;
             border-color: @link-color;
         }
-        &-warning{
+        &-yellow{
             color: @warning-color !important;
             border-color: @warning-color;
         }
@@ -103,12 +103,10 @@
             }
             .@{tag-close-prefix-cls} {
                 margin-left: 18px !important;
-                left: 4px;
-                top: -1px;
             }
         }
 
-        &.@{tag-prefix-cls}-primary {
+        &.@{tag-prefix-cls}-blue {
             color: @link-color !important;
             border: 1px solid @link-color !important;
 
@@ -119,7 +117,7 @@
                 color: @link-color !important;
             }
         }
-        &.@{tag-prefix-cls}-success {
+        &.@{tag-prefix-cls}-green {
             color: @success-color !important;
             border: 1px solid @success-color !important;
 
@@ -130,7 +128,7 @@
                 color: @success-color !important;
             }
         }
-        &.@{tag-prefix-cls}-warning {
+        &.@{tag-prefix-cls}-yellow {
             color: @warning-color !important;
             border: 1px solid @warning-color !important;
 
@@ -141,7 +139,7 @@
                 color: @warning-color !important;
             }
         }
-        &.@{tag-prefix-cls}-error {
+        &.@{tag-prefix-cls}-red {
             color: @error-color !important;
             border: 1px solid @error-color !important;
 
@@ -176,11 +174,11 @@
     .@{tag-close-prefix-cls} {
         .iconfont-size-under-12px(20px);
         cursor: pointer;
-        margin-left: 2px;
+        margin-left: 8px;
         color: #666;
         opacity: 0.66;
         position: relative;
-        top: -1px;
+        top: 1px;
         //transition: all @transition-time @ease-in-out;
 
         &:hover {
@@ -188,10 +186,10 @@
         }
     }
 
-    &-primary,
-    &-success,
-    &-warning,
-    &-error {
+    &-blue,
+    &-green,
+    &-yellow,
+    &-red {
         border: 0;
         &,
         a,
@@ -200,52 +198,29 @@
         .@{tag-close-prefix-cls}:hover {
             color: #fff;
         }
-        //.@{tag-close-prefix-cls}{
-        //    top: 2px;
-        //}
     }
 
-    &-primary,
-    &-primary&-dot &-dot-inner
+    &-blue,
+    &-blue&-dot &-dot-inner
     {
         background: @link-color;
     }
 
-    &-success,
-    &-success&-dot &-dot-inner
+    &-green,
+    &-green&-dot &-dot-inner
     {
         background: @success-color;
     }
 
-    &-warning,
-    &-warning&-dot &-dot-inner
+    &-yellow,
+    &-yellow&-dot &-dot-inner
     {
         background: @warning-color;
     }
 
-    &-error,
-    &-error&-dot &-dot-inner
+    &-red,
+    &-red&-dot &-dot-inner
     {
         background: @error-color;
     }
-
-    @colors: pink, magenta, red, volcano, orange, yellow, gold, cyan, lime, green, blue, geekblue, purple;
-
-    .make-color-classes(@i: length(@colors)) when (@i > 0) {
-        .make-color-classes(@i - 1);
-        @color: extract(@colors, @i);
-        @lightColor: "@{color}-1";
-        @lightBorderColor: "@{color}-3";
-        @darkColor: "@{color}-6";
-        &-@{color} {
-            line-height: 20px;
-            background: @@lightColor;
-            border-color: @@lightBorderColor;
-            .@{tag-prefix-cls}-text{
-                color: @@darkColor !important;
-            }
-        }
-    }
-
-    .make-color-classes();
 }

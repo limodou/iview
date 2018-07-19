@@ -25,7 +25,7 @@
                     <div
                         v-show="value === '' && !visible"
                         :class="[prefixCls + '-color-empty']">
-                        <i :class="[iconPrefixCls, iconPrefixCls + '-ios-close']"></i>
+                        <i :class="[iconPrefixCls, iconPrefixCls + '-ios-close-empty']"></i>
                     </div>
                     <div
                         v-show="value || visible"
@@ -87,6 +87,7 @@
                                 ref="clear"
                                 :tabindex="0"
                                 size="small"
+                                type="ghost"
                                 @click.native="handleClear"
                                 @keydown.enter="handleClear"
                                 @keydown.native.esc="closer"
@@ -111,7 +112,7 @@
 
 <script>
 import tinycolor from 'tinycolor2';
-import {directive as clickOutside} from 'v-click-outside-x';
+import vClickOutside from 'v-click-outside-x';
 import TransferDom from '../../directives/transfer-dom';
 import Drop from '../../components/select/dropdown.vue';
 import RecommendColors from './recommend-colors.vue';
@@ -129,7 +130,7 @@ export default {
 
     components: {Drop, RecommendColors, Saturation, Hue, Alpha},
 
-    directives: {clickOutside, TransferDom},
+    directives: {clickOutside: vClickOutside.directive, TransferDom},
 
     mixins: [Emitter, Locale, Prefixes],
 
@@ -168,12 +169,11 @@ export default {
             default: false,
         },
         size: {
+            type: String,
             validator(value) {
                 return oneOf(value, ['small', 'large', 'default']);
             },
-            default () {
-                return this.$IVIEW.size === '' ? 'default' : this.$IVIEW.size;
-            }
+            default: 'default',
         },
         hideDropDown: {
             type: Boolean,
@@ -201,9 +201,7 @@ export default {
         },
         transfer: {
             type: Boolean,
-            default () {
-                return this.$IVIEW.transfer === '' ? false : this.$IVIEW.transfer;
-            }
+            default: false,
         },
         name: {
             type: String,
@@ -221,7 +219,7 @@ export default {
                 '#2d8cf0',
                 '#19be6b',
                 '#ff9900',
-                '#ed4014',
+                '#ed3f14',
                 '#00b5ff',
                 '#19c919',
                 '#f9e31c',
@@ -250,7 +248,7 @@ export default {
         arrowClasses() {
             return [
                 this.iconPrefixCls,
-                `${this.iconPrefixCls}-ios-arrow-down`,
+                `${this.iconPrefixCls}-arrow-down-b`,
                 `${this.inputPrefixCls}-icon`,
                 `${this.inputPrefixCls}-icon-normal`,
             ];
