@@ -1,11 +1,5 @@
 <template>
-    <li
-        :class="classes"
-        @click.stop="select"
-        @touchend.stop="select"
-        @mousedown.prevent
-        @touchstart.prevent
-    ><slot>{{ showLabel }}</slot></li>
+    <li :class="classes" @click.stop="select" @mouseout.stop="blur" v-show="!hidden"><slot>{{ showLabel }}</slot></li>
 </template>
 <script>
     import Emitter from '../../mixins/emitter';
@@ -28,19 +22,15 @@
             disabled: {
                 type: Boolean,
                 default: false
-            },
-            selected: {
-                type: Boolean,
-                default: false
-            },
-            isFocused: {
-                type: Boolean,
-                default: false
             }
         },
         data () {
             return {
-                searchLabel: '',  // the slot value (textContent)
+                selected: false,
+                index: 0,    // for up and down to focus
+                isFocus: false,
+                hidden: false,    // for search
+                searchLabel: '',    // the value is slot,only for search
                 autoComplete: false
             };
         },
@@ -51,34 +41,49 @@
                     {
                         [`${prefixCls}-disabled`]: this.disabled,
                         [`${prefixCls}-selected`]: this.selected && !this.autoComplete,
-                        [`${prefixCls}-focus`]: this.isFocused
+                        [`${prefixCls}-focus`]: this.isFocus
                     }
                 ];
             },
             showLabel () {
                 return (this.label) ? this.label : this.value;
-            },
-            optionLabel(){
-                return this.label || (this.$el && this.$el.textContent);
             }
         },
         methods: {
             select () {
-                if (this.disabled) return false;
+                if (this.disabled) {
+                    return false;
+                }
 
-                this.dispatch('iSelect', 'on-select-selected', {
-                    value: this.value,
-                    label: this.optionLabel,
-                });
-                this.$emit('on-select-selected', {
-                    value: this.value,
-                    label: this.optionLabel,
-                });
+                this.dispatch('iSelect', 'on-select-selected', this.value);
             },
+            blur () {
+                this.isFocus = false;
+            },
+            queryChange (val) {
+                const parsedQuery = val.replace(/(\^|\(|\)|\[|\]|\$|\*|\+|\.|\?|\\|\{|\}|\|)/g, '\\$1');
+                this.hidden = !new RegExp(parsedQuery, 'i').test(this.searchLabel);
+            },
+            // 在使用函数防抖后，设置 key 后，不更新组件了，导致SearchLabel 不更新 #1865
+            updateSearchLabel () {
+                this.searchLabel = this.$el.textContent;
+            }
         },
         mounted () {
+            this.updateSearchLabel();
+            this.dispatch('iSelect', 'append');
+            this.$on('on-select-close', () => {
+                this.isFocus = false;
+            });
+            this.$on('on-query-change', (val) => {
+                this.queryChange(val);
+            });
+
             const Select = findComponentUpward(this, 'iSelect');
             if (Select) this.autoComplete = Select.autoComplete;
         },
+        beforeDestroy () {
+            this.dispatch('iSelect', 'remove');
+        }
     };
 </script>
