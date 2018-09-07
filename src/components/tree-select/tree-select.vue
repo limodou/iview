@@ -1,7 +1,8 @@
 <template>
-  <div :class="classes" v-clickoutside="handleClose">
+  <div :class="classes" v-clickoutside:exactElement="handleClose">
     <div
       :class="selectionCls"
+      class="exactElement"
       ref="reference"
       @click="toggleMenu">
       <slot name="input">
@@ -33,11 +34,13 @@
     </div>
         <Drop
             :class="dropdownCls"
+            class="ivu-tree-select-dropdown exactElement"
             v-show="dropVisible"
             :placement="placement"
             ref="dropdown"
             :data-transfer="transfer"
-            v-transfer-dom>
+            v-transfer-dom
+            @click="handleTransferClick">
             <ul v-show="notFoundShow" :class="[prefixCls + '-not-found']"><li>{{ localeNotFoundText }}</li></ul>
             <ul v-show="(!notFound && !remote) || (remote && !loading && !notFound)" :class="[prefixCls + '-dropdown-list']">
               <Tree
@@ -382,12 +385,12 @@ export default {
       if (this.transfer) this.disableCloseUnderTransfer = true;
     },
     handleClose () {
-      // if (this.disableCloseUnderTransfer) {
-      //   this.disableCloseUnderTransfer = false;
-      //   return false;
-      // }
+      if (this.disableCloseUnderTransfer) {
+        this.disableCloseUnderTransfer = false;
+        return ;
+      }
       this.visible = false;
-      // this.disableClickOutSide = false;
+      this.disableClickOutSide = false;
     },
 
     // 处理树选中状态

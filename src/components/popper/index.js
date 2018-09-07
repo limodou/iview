@@ -1199,6 +1199,9 @@
 
       if (fixed && !transformed) {
           var scrollParent = getScrollParent(parent);
+          // parentRect.top += scrollParent.scrollTop;
+          // changed by limodou 2018/07/27
+          parentRect.top = 0;
           parentRect.top += scrollParent.scrollTop;
           parentRect.bottom += scrollParent.scrollTop;
           parentRect.left += scrollParent.scrollLeft;
