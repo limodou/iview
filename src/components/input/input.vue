@@ -92,7 +92,7 @@
                     return oneOf(value, ['small', 'large', 'default']);
                 },
                 default () {
-                    return this.$IVIEW.size === '' ? 'default' : this.$IVIEW.size;
+                    return !this.$IVIEW || this.$IVIEW.size === '' ? 'default' : this.$IVIEW.size;
                 }
             },
             placeholder: {
@@ -253,6 +253,8 @@
                 let value = event.target.value;
                 this.setCurrentValue(value);
                 if (this.number) value = Number.isNaN(Number(value)) ? '0' : Number(value);
+                // iview version is this changed by limodou
+                // if (this.number && value !== '') value = Number.isNaN(Number(value)) ? value : Number(value);
                 this.$emit('input', value);
                 this.setCurrentValue(value);
                 this.$emit('on-change', event);
