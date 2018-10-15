@@ -58,7 +58,7 @@ import Upload from './components/upload';
 import {Row, Col} from './components/grid';
 import {Select, Option, OptionGroup} from './components/select';
 import locale from './locale/index';
-import {shim} from './utils/shim';
+import {shim, findIndex} from './utils/shim';
 import dataset from 'element-dataset';
 import TreeSelect from './components/tree-select';
 
@@ -189,6 +189,7 @@ if (typeof window !== 'undefined' && window.Vue) {
 
 // shim
 shim();
+findIndex();
 dataset();
 
 const API = {
