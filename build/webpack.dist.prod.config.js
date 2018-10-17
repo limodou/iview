@@ -12,6 +12,7 @@ module.exports = merge(webpackBaseConfig, {
     devtool: 'source-map',
     entry: {
         main: ['babel-polyfill', './src/index.js']
+        // main: './src/index.js'
     },
     output: {
         path: path.resolve(__dirname, '../dist'),

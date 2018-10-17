@@ -59,6 +59,7 @@ import {Row, Col} from './components/grid';
 import {Select, Option, OptionGroup} from './components/select';
 import locale from './locale/index';
 import {shim, findIndex} from './utils/shim';
+import './utils/classlist';
 import dataset from 'element-dataset';
 import TreeSelect from './components/tree-select';
 
