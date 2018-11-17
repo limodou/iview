@@ -1,7 +1,7 @@
 {
-    "name": "iview",
+    "name": "iview-com",
     "version": "3.1.0",
-    "title": "iView",
+    "title": "iViewCom",
     "description": "A high quality UI components Library with Vue.js",
     "homepage": "http://www.iviewui.com",
     "keywords": [
@@ -11,7 +11,8 @@
         "component",
         "components",
         "ui",
-        "framework"
+        "framework",
+        "ie9-compatible"
     ],
     "main": "dist/iview.js",
     "typings": "types/index.d.ts",
