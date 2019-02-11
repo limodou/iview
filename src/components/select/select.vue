@@ -141,6 +141,10 @@
             },
             elementId: {
                 type: String
+            },
+            //记录删除或选中，对于Tag的删除及多选的切换
+            onChanging: {
+
             }
         },
         data () {
@@ -404,6 +408,9 @@
                     return false;
                 }
 
+                if (this.onChanging && !this.onChanging(this.model[index], false))
+                    return false
+
                 if (this.remote) {
                     const tag = this.model[index];
                     this.selectedMultiple = this.selectedMultiple.filter(item => item.value !== tag);
@@ -462,6 +469,9 @@
 
                     this.findChild((child) => {
                         const index = value.indexOf(child.value);
+                        //当onChanging返回false时，不切换选中状态
+                        if (this.onChanging && !this.onChanging(child.value, index>=0))
+                            return
 
                         if (index >= 0) {
                             child.selected = true;
