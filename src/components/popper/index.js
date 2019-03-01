@@ -1218,6 +1218,15 @@
           width: elementRect.width,
           height: elementRect.height
       };
+      // 增加当取值为负时的修正
+      if (fixed && !transformed) {
+          if (rect.top < 0) {
+              rect.top = elementRect.top;
+          }
+          if (rect.bottom < 0) {
+              rect.bottom = elementRect.bottom;
+          }
+      }
       return rect;
   }
 

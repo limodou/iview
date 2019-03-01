@@ -5932,6 +5932,15 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
             width: elementRect.width,
             height: elementRect.height
         };
+
+        if (fixed && !transformed) {
+            if (rect.top < 0) {
+                rect.top = elementRect.top;
+            }
+            if (rect.bottom < 0) {
+                rect.bottom = elementRect.bottom;
+            }
+        }
         return rect;
     }
 
