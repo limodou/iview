@@ -39,6 +39,7 @@
     export default {
         name: 'TreeNode',
         mixins: [ Emitter ],
+        inject: ['TreeInstance'],
         components: { Checkbox, Icon, CollapseTransition, Render },
         props: {
             data: {
@@ -154,7 +155,11 @@
             },
             handleSelect () {
                 if (this.data.disabled) return;
-                this.dispatch('Tree', 'on-selected', this.data.nodeKey);
+                if (this.TreeInstance.showCheckbox && this.TreeInstance.checkDirectly) {
+                    this.handleCheck();
+                } else {
+                    this.dispatch('Tree', 'on-selected', this.data.nodeKey);
+                }
             },
             handleCheck () {
                 if (this.data.disabled) return;

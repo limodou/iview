@@ -2,7 +2,7 @@
     <div :class="wrapClasses">
         <template v-if="type !== 'textarea'">
             <div :class="[prefixCls + '-group-prepend']" v-if="prepend" v-show="slotReady"><slot name="prepend"></slot></div>
-            <i class="ivu-icon" :class="['ivu-icon-ios-close-circle', prefixCls + '-icon', prefixCls + '-icon-clear' , prefixCls + '-icon-normal']" v-if="clearable && currentValue" @click="handleClear"></i>
+            <i class="ivu-icon" :class="['ivu-icon-ios-close-circle', prefixCls + '-icon', prefixCls + '-icon-clear' , prefixCls + '-icon-normal']" v-if="clearable && currentValue && !disabled" @click="handleClear"></i>
             <i class="ivu-icon" :class="['ivu-icon-' + icon, prefixCls + '-icon', prefixCls + '-icon-normal']" v-else-if="icon" @click="handleIconClick"></i>
             <i class="ivu-icon ivu-icon-ios-search" :class="[prefixCls + '-icon', prefixCls + '-icon-normal', prefixCls + '-search-icon']" v-else-if="search && enterButton === false" @click="handleSearch"></i>
             <span class="ivu-input-suffix" v-else-if="showSuffix"><slot name="suffix"><i class="ivu-icon" :class="['ivu-icon-' + suffix]" v-if="suffix"></i></slot></span>
@@ -30,6 +30,9 @@
                 @keydown="handleKeydown"
                 @focus="handleFocus"
                 @blur="handleBlur"
+                @compositionstart="handleComposition"
+                @compositionupdate="handleComposition"
+                @compositionend="handleComposition"
                 @input="handleInput"
                 @change="handleChange">
             <div :class="[prefixCls + '-group-append']" v-if="append" v-show="slotReady"><slot name="append"></slot></div>
@@ -62,6 +65,9 @@
             @keydown="handleKeydown"
             @focus="handleFocus"
             @blur="handleBlur"
+            @compositionstart="handleComposition"
+            @compositionupdate="handleComposition"
+            @compositionend="handleComposition"
             @input="handleInput">
         </textarea>
     </div>
@@ -79,7 +85,7 @@
         props: {
             type: {
                 validator (value) {
-                    return oneOf(value, ['text', 'textarea', 'password', 'url', 'email', 'date']);
+                    return oneOf(value, ['text', 'textarea', 'password', 'url', 'email', 'date', 'number', 'tel']);
                 },
                 default: 'text'
             },
@@ -179,7 +185,8 @@
                 slotReady: false,
                 textareaStyles: {},
                 showPrefix: false,
-                showSuffix: false
+                showSuffix: false,
+                isOnComposition: false
             };
         },
         computed: {
@@ -230,6 +237,7 @@
                 this.$emit('on-keypress', event);
             },
             handleKeyup (event) {
+                //保留处理退格键等
                 var keycode = event.which
                 if(event.ctrlKey && (keycode == 88 || keycode == 89 || keycode == 90) ||
                     event.keyCode === 46 || event.keyCode ===8) {
@@ -249,8 +257,20 @@
                     this.dispatch('FormItem', 'on-form-blur', this.currentValue);
                 }
             },
+            handleComposition(event) {
+                if (event.type === 'compositionstart') {
+                    this.isOnComposition = true;
+                }
+                if (event.type === 'compositionend') {
+                    this.isOnComposition = false;
+                    this.handleInput(event);
+                }
+            },
             handleInput (event) {
+                if (this.isOnComposition) return;
+
                 let value = event.target.value;
+                //处理整数
                 this.setCurrentValue(value);
                 if (this.number) value = Number.isNaN(Number(value)) ? '0' : Number(value);
                 // iview version is this changed by limodou
@@ -263,6 +283,7 @@
                 this.$emit('on-input-change', event);
             },
             setCurrentValue (value) {
+                //处理整数
                 // if (value === this.currentValue) return;
                 this.$nextTick(() => {
                     this.resizeTextarea();

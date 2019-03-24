@@ -52,6 +52,8 @@
                 :load-data="handleRemoteLoadData"
                 :multiple="multiple"
                 :show-checkbox="multiple"
+                check-directly
+                :check-strictly="checkStrictly"
               ></Tree>
             </ul>
             <ul v-show="loading" :class="[prefixCls + '-loading']">{{ localeLoadingText }}</ul>
@@ -169,12 +171,17 @@ export default {
         }
     },
 
+    checkStrictly: {
+        type: Boolean,
+        default: false
+    },
+
     //可选项
     options: {
       type: Object
     },
 
-    //先中后关闭，单选可用
+    //选中后关闭，单选可用
     selectClose: {
       type: Boolean,
       default: true

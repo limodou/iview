@@ -136,7 +136,7 @@
                 this.currentValue = val;
             },
             currentValue (val) {
-                this.$refs.select.query = val;
+                this.$refs.select.setQuery(val);
                 this.$emit('input', val);
                 if (this.disableEmitChange) {
                     this.disableEmitChange = false;
@@ -166,6 +166,7 @@
                 if (!this.clearable) return;
                 this.currentValue = '';
                 this.$refs.select.reset();
+                this.$emit('on-clear');
             }
         }
     };

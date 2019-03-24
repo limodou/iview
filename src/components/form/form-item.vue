@@ -84,9 +84,12 @@
             };
         },
         watch: {
-            error (val) {
-                this.validateMessage = val;
-                this.validateState = val === '' ? '' : 'error';
+            error: {
+                handler (val) {
+                    this.validateMessage = val;
+                    this.validateState = val ? 'error' : '';
+                },
+                immediate: true
             },
             validateStatus (val) {
                 this.validateState = val;
@@ -114,19 +117,16 @@
             //    }
             //    return parent;
             // },
-            fieldValue: {
-                cache: false,
-                get() {
-                    const model = this.form.model;
-                    if (!model || !this.prop) { return; }
+            fieldValue () {
+                const model = this.form.model;
+                if (!model || !this.prop) { return; }
 
-                    let path = this.prop;
-                    if (path.indexOf(':') !== -1) {
-                        path = path.replace(/:/, '.');
-                    }
-
-                    return getPropByPath(model, path).v;
+                let path = this.prop;
+                if (path.indexOf(':') !== -1) {
+                    path = path.replace(/:/, '.');
                 }
+
+                return getPropByPath(model, path).v;
             },
             labelStyles () {
                 let style = {};
