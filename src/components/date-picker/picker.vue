@@ -206,7 +206,8 @@
                 default: () => []
             },
             value: {
-                type: [Date, String, Array]
+                type: [Date, String, Array],
+                default: ''
             },
             options: {
                 type: Object,
