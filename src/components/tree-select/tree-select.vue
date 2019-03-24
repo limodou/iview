@@ -186,6 +186,10 @@ export default {
     }
   },
   data () {
+    let model = this.value
+    if (this.multiple) {
+        if (!this.value) model = []
+    }
     return {
       prefixCls: prefixCls,
       visible: false,
@@ -197,7 +201,7 @@ export default {
       inputLength: 20,
       notFound: false,
       slotChangeDuration: false,    // if slot change duration and in multiple, set true and after slot change, set false
-      model: this.value,
+      model: model,
       currentLabel: this.label,
       oldData: null, // 用于保存原来的数据
       currentData: this.choices // 当前数据
@@ -324,7 +328,9 @@ export default {
         const tag = this.model[index];
         this.selectedMultiple = this.selectedMultiple.filter(item => item.value !== tag);
 
-        this.model.splice(index, 1);
+        let model = this.model.slice()
+        model.splice(index, 1)
+        this.model = model
 
         if (this.filterable && this.visible) {
             this.$refs.input.focus();
@@ -396,9 +402,15 @@ export default {
     // 处理树选中状态
     handleSelected (item) {
       if (!this.multiple) {
-        this.selectedSingle = item[0].title
-        this.model = item[0].id
-        this.query = this.selectedSingle
+        if (item.length === 0) {
+            this.selectedSingle = ''
+            this.model = ''
+            this.query = this.selectedSingle
+        } else {
+            this.selectedSingle = item[0].title
+            this.model = item[0].id
+            this.query = this.selectedSingle
+        }
         if (this.selectClose) {
           this.visible = false
         }
@@ -407,13 +419,15 @@ export default {
 
     handleChecked (items) {
       if (this.multiple) {
+        let model = this.model.slice()
         for(let row of items) {
           // 非叶子结点，并且当前值中不存在
           if (((this.onlyLeaf && !row.children) || (!this.onlyLeaf)) && this.model.indexOf(row.id) === -1) {
             this.selectedMultiple.push({value:row.id || row.title, label: row.title})
-            this.model.push(row.id)
+            model.push(row.id)
           }
         }
+        this.model = model
       }
     },
 
@@ -579,23 +593,7 @@ export default {
         deep: true
       },
       model () {
-          this.$emit('input', this.model);
-          //this.modelToQuery();
-          // if (this.multiple) {
-          //     if (this.slotChangeDuration) {
-          //         this.slotChangeDuration = false;
-          //     } else {
-          //         this.updateMultipleSelected();
-          //     }
-          // } else {
-          //     this.updateSingleSelected();
-          // }
-          // // #957
-          // if (!this.visible && this.filterable) {
-          //     this.$nextTick(() => {
-          //         this.broadcastQuery('');
-          //     });
-          // }
+        this.$emit('input', this.model)
       },
       choices: {
         handler (val) {
@@ -671,12 +669,6 @@ export default {
         //   this.selectToChangeQuery = false;
           this.broadcast('Drop', 'on-update-popper');
       }
-  },
-
-  created () {
-    if (this.multiple) {
-      if (!this.model) this.model = []
-    }
   }
 }
 </script>
