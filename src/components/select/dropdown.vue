@@ -61,7 +61,8 @@
                                     boundariesElement: 'body'
                                 }
                             },
-                            modifiersIgnored: ['preventOverflow', 'flip'],
+                            // modifiersIgnored: ['preventOverflow', 'flip'],
+                            // modifiersIgnored: ['flip'],
                             onCreate:()=>{
                                 this.resetTransformOrigin();
                                 this.$nextTick(this.popper.update());

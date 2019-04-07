@@ -464,7 +464,7 @@
       this.state.updateBound = this.update.bind(this);
       root.addEventListener('resize', this.state.updateBound);
       // if the boundariesElement is window we don't need to listen for the scroll event
-      if (this._options.preventOverflow && this._options.preventOverflow.boundariesElement !== 'window') {
+      if (this._options.modifiers.preventOverflow && this._options.modifiers.preventOverflow.boundariesElement !== 'window') {
           var target = getScrollParent(this._reference);
           // here it could be both `body` or `documentElement` thanks to Firefox, we then check both
           if (target === root.document.body || target === root.document.documentElement) {
@@ -483,7 +483,7 @@
   Popper.prototype._removeEventListeners = function() {
       // NOTE: 1 DOM access here
       root.removeEventListener('resize', this.state.updateBound);
-      if (this._options.preventOverflow && this._options.preventOverflow.boundariesElement !== 'window') {
+      if (this._options.modifiers.preventOverflow && this._options.modifiers.preventOverflow.boundariesElement !== 'window') {
           var target = getScrollParent(this._reference);
           // here it could be both `body` or `documentElement` thanks to Firefox, we then check both
           if (target === root.document.body || target === root.document.documentElement) {
