@@ -635,11 +635,13 @@
                 }
             },
             broadcastQuery (val) {
-                if (findComponentDownward(this, 'OptionGroup')) {
-                    this.broadcast('OptionGroup', 'on-query-change', val);
-                    this.broadcast('iOption', 'on-query-change', val);
-                } else {
-                    this.broadcast('iOption', 'on-query-change', val);
+                if (this.filterable) {
+                    if (findComponentDownward(this, 'OptionGroup')) {
+                        this.broadcast('OptionGroup', 'on-query-change', val);
+                        this.broadcast('iOption', 'on-query-change', val);
+                    } else {
+                        this.broadcast('iOption', 'on-query-change', val);
+                    }
                 }
             },
             debouncedAppendRemove(){
@@ -792,7 +794,7 @@
             },
             query (val) {
                 if (this.remote && this.remoteMethod) {
-                    if (!this.selectToChangeQuery) {
+                    if (!this.selectToChangeQuery && this.filterable) {
                         this.$emit('on-query-change', val);
                         this.remoteMethod(val);
                     }
@@ -801,7 +803,7 @@
                         child.isFocus = false;
                     });
                 } else {
-                    if (!this.selectToChangeQuery) {
+                    if (!this.selectToChangeQuery && this.filterable) {
                         this.$emit('on-query-change', val);
                     }
                     this.broadcastQuery(val);
