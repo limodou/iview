@@ -570,28 +570,46 @@ export default {
 
   watch: {
       // value支持 {label, value} 形式
-      value (val) {
-        this.model = val;
-        if (val === '') this.query = '';
+      value: {
+          handler (val) {
+            if (!val) {
+                this.model = val
+                this.query = ''
+            } else {
+                if (this.labelInValue) {
+                    if (this.multiple) {
+                        this.model = val.map(x=>x.value)
+                        this.label = val
+                    } else {
+                        this.model = val.value
+                        this.label = val.label
+                    }
+                } else {
+                    this.model = val
+                }
+            }
+          },
+          deep: true
       },
       label: {
+        immediate: true,
         handler (val) {
           this.currentLabel = val;
           if (val) {
             if (this.multiple && this.value) {
-              var m = []
-              for(let i=0; i<this.value.length; i++) {
-                let c = {}
-                let item = val[i]
-                if (item instanceof Object)
-                  m.push(item)
-                else {
-                  c.label = item
-                  c.value = val[i]
-                  m.push(c)
-                }
-              }
-              this.selectedMultiple = m // 需要 value 和 label 都有值,或label 是 [{label: value}, ...]的形式
+            //   var m = []
+            //   for(let i=0; i<this.value.length; i++) {
+            //     let c = {}
+            //     let item = val[i]
+            //     if (item instanceof Object)
+            //       m.push(item)
+            //     else {
+            //       c.label = item
+            //       c.value = val[i]
+            //       m.push(c)
+            //     }
+            //   }
+              this.selectedMultiple = val // 需要 value 和 label 都有值,或label 是 [{label: value}, ...]的形式
             } else {
               this.selectedSingle = val
             }

@@ -26299,27 +26299,40 @@ exports.default = {
     },
 
     watch: {
-        value: function value(val) {
-            this.model = val;
-            if (val === '') this.query = '';
-        },
+        value: {
+            handler: function handler(val) {
+                var _this7 = this;
 
+                if (!val) {
+                    this.model = val;
+                    this.query = '';
+                } else {
+                    if (this.labelInValue) {
+                        if (this.multiple) {
+                            this.model = val.map(function (x) {
+                                (0, _newArrowCheck3.default)(this, _this7);
+                                return x.value;
+                            }.bind(this));
+                            this.label = val;
+                        } else {
+                            this.model = val.value;
+                            this.label = val.label;
+                        }
+                    } else {
+                        this.model = val;
+                    }
+                }
+            },
+
+            deep: true
+        },
         label: {
+            immediate: true,
             handler: function handler(val) {
                 this.currentLabel = val;
                 if (val) {
                     if (this.multiple && this.value) {
-                        var m = [];
-                        for (var i = 0; i < this.value.length; i++) {
-                            var c = {};
-                            var item = val[i];
-                            if (item instanceof Object) m.push(item);else {
-                                c.label = item;
-                                c.value = val[i];
-                                m.push(c);
-                            }
-                        }
-                        this.selectedMultiple = m;
+                        this.selectedMultiple = val;
                     } else {
                         this.selectedSingle = val;
                     }
@@ -26371,7 +26384,7 @@ exports.default = {
             }
         },
         query: function query(val) {
-            var _this7 = this;
+            var _this8 = this;
 
             if (this.remote && this.remoteQuery) {
                 if (val) {
@@ -26379,7 +26392,7 @@ exports.default = {
                         this.oldData = this.currentData;
                     }
                     var cb = function (data) {
-                        (0, _newArrowCheck3.default)(this, _this7);
+                        (0, _newArrowCheck3.default)(this, _this8);
 
                         this.currentData = data;
                         this.notFound = this.currentData.length === 0;
@@ -41439,8 +41452,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_tree_select_vue__ = __webpack_require__(248);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_tree_select_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_tree_select_vue__);
 /* harmony namespace reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_tree_select_vue__) if(__WEBPACK_IMPORT_KEY__ !== 'default') (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_tree_select_vue__[key]; }) }(__WEBPACK_IMPORT_KEY__));
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__babel_loader_sourceMap_node_modules_vue_loader_lib_template_compiler_index_id_data_v_342c1eda_hasScoped_false_optionsId_0_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_tree_select_vue__ = __webpack_require__(620);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__babel_loader_sourceMap_node_modules_vue_loader_lib_template_compiler_index_id_data_v_342c1eda_hasScoped_false_optionsId_0_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_tree_select_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__babel_loader_sourceMap_node_modules_vue_loader_lib_template_compiler_index_id_data_v_342c1eda_hasScoped_false_optionsId_0_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_tree_select_vue__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__babel_loader_sourceMap_node_modules_vue_loader_lib_template_compiler_index_id_data_v_b8272bc6_hasScoped_false_optionsId_0_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_tree_select_vue__ = __webpack_require__(620);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__babel_loader_sourceMap_node_modules_vue_loader_lib_template_compiler_index_id_data_v_b8272bc6_hasScoped_false_optionsId_0_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_tree_select_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__babel_loader_sourceMap_node_modules_vue_loader_lib_template_compiler_index_id_data_v_b8272bc6_hasScoped_false_optionsId_0_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_tree_select_vue__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__node_modules_vue_loader_lib_runtime_component_normalizer__ = __webpack_require__(0);
 /* script */
 
@@ -41458,8 +41471,8 @@ var __vue_module_identifier__ = null
 
 var Component = Object(__WEBPACK_IMPORTED_MODULE_2__node_modules_vue_loader_lib_runtime_component_normalizer__["a" /* default */])(
   __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_tree_select_vue___default.a,
-  __WEBPACK_IMPORTED_MODULE_1__babel_loader_sourceMap_node_modules_vue_loader_lib_template_compiler_index_id_data_v_342c1eda_hasScoped_false_optionsId_0_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_tree_select_vue__["render"],
-  __WEBPACK_IMPORTED_MODULE_1__babel_loader_sourceMap_node_modules_vue_loader_lib_template_compiler_index_id_data_v_342c1eda_hasScoped_false_optionsId_0_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_tree_select_vue__["staticRenderFns"],
+  __WEBPACK_IMPORTED_MODULE_1__babel_loader_sourceMap_node_modules_vue_loader_lib_template_compiler_index_id_data_v_b8272bc6_hasScoped_false_optionsId_0_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_tree_select_vue__["render"],
+  __WEBPACK_IMPORTED_MODULE_1__babel_loader_sourceMap_node_modules_vue_loader_lib_template_compiler_index_id_data_v_b8272bc6_hasScoped_false_optionsId_0_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_tree_select_vue__["staticRenderFns"],
   __vue_template_functional__,
   __vue_styles__,
   __vue_scopeId__,
