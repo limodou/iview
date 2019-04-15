@@ -6,7 +6,7 @@
     const isServer = Vue.prototype.$isServer;
     import { getStyle } from '../../utils/assist';
     const Popper = isServer ? function() {} : require('../popper');  // eslint-disable-line
-
+    const IE9 = navigator.appName == "Microsoft Internet Explorer" && navigator.appVersion .split(";")[1].replace(/[ ]/g,"")=="MSIE9.0"
     import { transferIndex, transferIncrease } from '../../utils/transfer-queue';
 
     export default {
@@ -50,27 +50,31 @@
                         this.popperStatus = true;
                     });
                 } else {
-                    this.$nextTick(() => {
-                        this.popper = new Popper(this.$parent.$refs.reference, this.$el, {
-                            placement: this.placement,
-                            modifiers: {
-                                computeStyle:{
-                                    gpuAcceleration: false
-                                },
-                                preventOverflow :{
-                                    boundariesElement: 'body'
-                                }
+                    let opts = {
+                        placement: this.placement,
+                        modifiers: {
+                            computeStyle:{
+                                gpuAcceleration: false
                             },
-                            // modifiersIgnored: ['preventOverflow', 'flip'],
-                            // modifiersIgnored: ['flip'],
-                            onCreate:()=>{
-                                this.resetTransformOrigin();
-                                this.$nextTick(this.popper.update());
-                            },
-                            onUpdate:()=>{
-                                this.resetTransformOrigin();
+                            preventOverflow :{
+                                boundariesElement: 'viewport'
                             }
-                        });
+                        },
+                        // modifiersIgnored: ['preventOverflow', 'flip'],
+                        // modifiersIgnored: ['flip'],
+                        onCreate:()=>{
+                            this.resetTransformOrigin();
+                            this.$nextTick(this.popper.update());
+                        },
+                        onUpdate:()=>{
+                            this.resetTransformOrigin();
+                        }
+                    }
+                    if (IE9) {
+                        opts.modifiersIgnored = ['preventOverflow', 'flip']
+                    }
+                    this.$nextTick(() => {
+                        this.popper = new Popper(this.$parent.$refs.reference, this.$el, opts);
                     });
                 }
                 // set a height for parent is Modal and Select's width is 100%

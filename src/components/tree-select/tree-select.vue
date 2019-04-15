@@ -83,7 +83,6 @@ export default {
 
   props: {
     value: {
-        type: [String, Number, Array],
         default: ''
     },
     // 使用时，也得设置 value 才行
@@ -579,10 +578,10 @@ export default {
                 if (this.labelInValue) {
                     if (this.multiple) {
                         this.model = val.map(x=>x.value)
-                        this.label = val
+                        this.currentLabel = val.slice()
                     } else {
                         this.model = val.value
-                        this.label = val.label
+                        this.currentLabel = val.label
                     }
                 } else {
                     this.model = val
@@ -592,23 +591,23 @@ export default {
           deep: true
       },
       label: {
+          immediate: true,
+          handler (val) {
+            this.currentLabel = val;
+            if (val) {
+                if (this.multiple && this.value) {
+                    this.selectedMultiple = val // 需要 value 和 label 都有值,或label 是 [{label: value}, ...]的形式
+                } else {
+                    this.selectedSingle = val
+                }
+            }
+          }
+      },
+      currentLabel: {
         immediate: true,
         handler (val) {
-          this.currentLabel = val;
           if (val) {
             if (this.multiple && this.value) {
-            //   var m = []
-            //   for(let i=0; i<this.value.length; i++) {
-            //     let c = {}
-            //     let item = val[i]
-            //     if (item instanceof Object)
-            //       m.push(item)
-            //     else {
-            //       c.label = item
-            //       c.value = val[i]
-            //       m.push(c)
-            //     }
-            //   }
               this.selectedMultiple = val // 需要 value 和 label 都有值,或label 是 [{label: value}, ...]的形式
             } else {
               this.selectedSingle = val
@@ -618,7 +617,19 @@ export default {
         deep: true
       },
       model () {
-        this.$emit('input', this.model)
+        if (this.labelInValue) {
+            if (!this.multiple) {
+                this.$emit('input', {value: this.model, label: this.selectedSingle})
+            } else {
+                this.$emit('input', this.selectedMultiple.slice())
+            }
+        } else {
+            if (!this.multiple) {
+                this.$emit('input', this.model)
+            } else {
+                this.$emit('input', this.model.slice())
+            }
+        }
       },
       choices: {
         handler (val) {

@@ -77,6 +77,8 @@
       modifiersIgnored: [],
   };
 
+  const IE9 = navigator.appName == "Microsoft Internet Explorer" && navigator.appVersion .split(";")[1].replace(/[ ]/g,"")=="MSIE9.0"
+
   /**
    * Create a new Popper.js instance
    * @constructor Popper
@@ -523,7 +525,11 @@
           };
       } else if (boundariesElement === 'viewport') {
           var offsetParent = getOffsetParent(this._popper);
-          var scrollParent = getScrollParent(this._popper);
+          if (IE9) {
+            var scrollParent = getScrollParent(this._popper);
+          } else {
+            var scrollParent = getScrollParent(this._popper.parentNode);
+          }
           var offsetParentRect = getOffsetRect(offsetParent);
 
           // if the popper is fixed we don't have to substract scrolling from the boundaries
@@ -1044,7 +1050,6 @@
       // NOTE: 1 DOM access here
       var offsetParent = element.offsetParent;
       return !offsetParent ? root.document.documentElement : offsetParent;
-      return offsetParent;
       // return offsetParent === root.document.body || !offsetParent ? root.document.documentElement : offsetParent;
   }
 
@@ -1056,16 +1061,31 @@
    * @returns {Element} offset parent
    */
   function getScrollParent(element) {
-      if (element === root.document) {
-          // Firefox puts the scrollTOp value on `documentElement` instead of `body`, we then check which of them is
-          // greater than 0 and return the proper element
-          if (root.document.body.scrollTop) {
-              return root.document.body;
-          } else {
-              return root.document.documentElement;
-          }
+      // if (element === root.document) {
+      //     // Firefox puts the scrollTOp value on `documentElement` instead of `body`, we then check which of them is
+      //     // greater than 0 and return the proper element
+      //     if (root.document.body.scrollTop) {
+      //         return root.document.body;
+      //     } else {
+      //         return root.document.documentElement;
+      //     }
+      // }
+      if (!element) {
+        return document.body;
       }
-
+      switch (element.nodeName) {
+        case 'HTML':
+          if (IE9) {
+            return element.ownerDocument.body
+          } else {
+            return element
+          }
+        // case 'BODY':
+        //   return element.ownerDocument.body;
+        case '#document':
+          return element.body;
+      }
+    
       // Firefox want us to check `-x` and `-y` variations as well
       if (
           ['scroll', 'auto'].indexOf(getStyleComputedProperty(element, 'overflow')) !== -1 ||
