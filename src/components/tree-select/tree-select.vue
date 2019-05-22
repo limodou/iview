@@ -40,6 +40,7 @@
             ref="dropdown"
             :data-transfer="transfer"
             v-transfer-dom
+            @on-update-popper="handleUpdatePopper"
             @click="handleTransferClick">
             <ul v-show="notFoundShow" :class="[prefixCls + '-not-found']"><li>{{ localeNotFoundText }}</li></ul>
             <ul v-show="(!notFound && !remote) || (remote && !loading && !notFound)" :class="[prefixCls + '-dropdown-list']">
@@ -161,6 +162,10 @@ export default {
     },
     elementId: {
         type: String
+    },
+    childrenKey: {
+        type: String,
+        default: 'children'
     },
 
     choices: {
@@ -423,17 +428,24 @@ export default {
       }
     },
 
-    handleChecked (items) {
+    handleChecked (items, node) {
       if (this.multiple) {
         let model = this.model.slice()
-        for(let row of items) {
-          // 非叶子结点，并且当前值中不存在
-          if (((this.onlyLeaf && !row.children) || (!this.onlyLeaf)) && this.model.indexOf(row.id) === -1) {
-            this.selectedMultiple.push({value:row.id || row.title, label: row.title})
-            model.push(row.id)
-          }
+        // 非叶子结点，并且当前值中不存在
+        if (node.checked) {
+            if (((this.onlyLeaf && !node[this.childrenKey]) || (!this.onlyLeaf)) && this.model.indexOf(node.id) === -1) {
+                this.selectedMultiple.push({value:node.id || node.title, label: node.title})
+                model.push(node.id)
+                this.model = model
+            }
+        } else {
+            this.selectedMultiple = this.selectedMultiple.filter((x) => x.value !== node.id)
+            let index = this.model.indexOf(node.id)
+            if (index > -1) {
+                model.splice(index, 1)
+                this.model = model
+            }
         }
-        this.model = model
       }
     },
 
@@ -448,8 +460,8 @@ export default {
                 }
                 return true
             } else {
-                if (parent.children && parent.children.length > 0) {
-                    for(let item of parent.children) {
+                if (parent[this.childrenKey] && parent[this.childrenKey].length > 0) {
+                    for(let item of parent[this.childrenKey]) {
                         if (_search(item)) return true
                     }
                 }
@@ -475,8 +487,8 @@ export default {
                 found = false
                 for(let c of p) {
                     if (c.id === item.id) {
-                        if (!c.children) c.children = []
-                        p = c.children
+                        if (!c[this.childrenKey]) c[this.childrenKey] = []
+                        p = c[this.childrenKey]
                         found = true
                         break
                     }
@@ -484,17 +496,17 @@ export default {
                 if (!found) {
                     let n = Object.assign({}, item)
                     p.push(n)
-                    n.children = []
+                    n[this.childrenKey] = []
                     n.selected = false
                     n.checked = false
                     n.indeterminate = false
-                    p = n.children
+                    p = n[this.childrenKey]
                 }
             }
             let n = Object.assign({}, node)
             p.push(n)
-            if (n.hasOwnProperty('children'))
-                delete n.children
+            if (n.hasOwnProperty(this.childrenKey))
+                delete n[this.childrenKey]
             n.selected = false
             n.checked = false
             n.indeterminate = false
@@ -508,7 +520,7 @@ export default {
             }
         }
         const find = (parent) => {
-            if (!parent.children || (parent.children && parent.children.length === 0)) {
+            if (!parent[this.childrenKey] || (parent[this.childrenKey] && parent[this.childrenKey].length === 0)) {
                 if (
                     (
                       (this.multiple && this.model.indexOf(parent.id) === -1)
@@ -521,7 +533,7 @@ export default {
                     if (match(parent)) insertData(stack, parent)
                 }
                 stack.push(parent)
-                for(let c of parent.children) {
+                for(let c of parent[this.childrenKey]) {
                     find(c)
                 }
                 stack.pop()
@@ -540,8 +552,8 @@ export default {
                 let changed = {checked: true, nodeKey: parent.nodeKey}
                 this.$refs.selector.handleCheck(changed)
             }
-            if (parent.children && parent.children.length > 0) {
-                for(let c of parent.children) {
+            if (parent[this.childrenKey] && parent[this.childrenKey].length > 0) {
+                for(let c of parent[this.childrenKey]) {
                     find(c)
                 }
             }
@@ -562,8 +574,40 @@ export default {
         }
     },
 
+    isSelected (item) {
+        if (this.multiple) {
+            for (let c of this.selectedMultiple) {
+                if (item.id === c.value) {
+                    return true
+                }
+            }
+        } else {
+            if (item.id === this.selectedSingle) {
+                return true
+            }
+        }
+    },
+
     handleRemoteLoadData (item, callback) {
         this.loadData(item, callback)
+    },
+
+    // 当下拉窗打开时，设置节点选中状态
+    handleUpdatePopper () {
+        const walk = (data) => {
+            for(let item of data) {
+                //检查是否选中状态
+                if (this.isSelected(item)) {
+                    this.$set(item, 'checked', true)
+                    // this.$set(item, 'selected', true)
+                }
+                if (item[this.childrenKey] && item[this.childrenKey].length > 0) {
+                    walk(item[this.childrenKey])
+                }
+            }
+        }
+        if (this.multiple)
+            walk(this.currentData)
     }
   },
 
@@ -571,9 +615,11 @@ export default {
       // value支持 {label, value} 形式
       value: {
           handler (val) {
-            if (!val) {
+            if (!val || Array.isArray(val) && val.length === 0) {
                 this.model = val
                 this.query = ''
+                this.selectedSingle = ''
+                this.selectedMultiple = []
             } else {
                 if (this.labelInValue) {
                     if (this.multiple) {
@@ -581,7 +627,7 @@ export default {
                         this.currentLabel = val.slice()
                     } else {
                         this.model = val.value
-                        this.currentLabel = val.label
+                        this.currentLabel = this.model ? val.label : ''
                     }
                 } else {
                     this.model = val

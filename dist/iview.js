@@ -25725,6 +25725,10 @@ exports.default = {
         elementId: {
             type: String
         },
+        childrenKey: {
+            type: String,
+            default: 'children'
+        },
 
         choices: {
             type: Array,
@@ -25950,45 +25954,36 @@ exports.default = {
                 }
             }
         },
-        handleChecked: function handleChecked(items) {
+        handleChecked: function handleChecked(items, node) {
+            var _this3 = this;
+
             if (this.multiple) {
                 var model = this.model.slice();
-                var _iteratorNormalCompletion = true;
-                var _didIteratorError = false;
-                var _iteratorError = undefined;
 
-                try {
-                    for (var _iterator = (0, _getIterator3.default)(items), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-                        var row = _step.value;
-
-                        if ((this.onlyLeaf && !row.children || !this.onlyLeaf) && this.model.indexOf(row.id) === -1) {
-                            this.selectedMultiple.push({ value: row.id || row.title, label: row.title });
-                            model.push(row.id);
-                        }
+                if (node.checked) {
+                    if ((this.onlyLeaf && !node[this.childrenKey] || !this.onlyLeaf) && this.model.indexOf(node.id) === -1) {
+                        this.selectedMultiple.push({ value: node.id || node.title, label: node.title });
+                        model.push(node.id);
+                        this.model = model;
                     }
-                } catch (err) {
-                    _didIteratorError = true;
-                    _iteratorError = err;
-                } finally {
-                    try {
-                        if (!_iteratorNormalCompletion && _iterator.return) {
-                            _iterator.return();
-                        }
-                    } finally {
-                        if (_didIteratorError) {
-                            throw _iteratorError;
-                        }
+                } else {
+                    this.selectedMultiple = this.selectedMultiple.filter(function (x) {
+                        (0, _newArrowCheck3.default)(this, _this3);
+                        return x.value !== node.id;
+                    }.bind(this));
+                    var index = this.model.indexOf(node.id);
+                    if (index > -1) {
+                        model.splice(index, 1);
+                        this.model = model;
                     }
                 }
-
-                this.model = model;
             }
         },
         deselect: function deselect(value) {
-            var _this3 = this;
+            var _this4 = this;
 
             var _search = function (parent) {
-                (0, _newArrowCheck3.default)(this, _this3);
+                (0, _newArrowCheck3.default)(this, _this4);
 
                 if (parent.id === value) {
                     if (this.multiple) {
@@ -25999,61 +25994,61 @@ exports.default = {
                     }
                     return true;
                 } else {
-                    if (parent.children && parent.children.length > 0) {
-                        var _iteratorNormalCompletion2 = true;
-                        var _didIteratorError2 = false;
-                        var _iteratorError2 = undefined;
+                    if (parent[this.childrenKey] && parent[this.childrenKey].length > 0) {
+                        var _iteratorNormalCompletion = true;
+                        var _didIteratorError = false;
+                        var _iteratorError = undefined;
 
                         try {
-                            for (var _iterator2 = (0, _getIterator3.default)(parent.children), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-                                var item = _step2.value;
+                            for (var _iterator = (0, _getIterator3.default)(parent[this.childrenKey]), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                                var item = _step.value;
 
                                 if (_search(item)) return true;
                             }
                         } catch (err) {
-                            _didIteratorError2 = true;
-                            _iteratorError2 = err;
+                            _didIteratorError = true;
+                            _iteratorError = err;
                         } finally {
                             try {
-                                if (!_iteratorNormalCompletion2 && _iterator2.return) {
-                                    _iterator2.return();
+                                if (!_iteratorNormalCompletion && _iterator.return) {
+                                    _iterator.return();
                                 }
                             } finally {
-                                if (_didIteratorError2) {
-                                    throw _iteratorError2;
+                                if (_didIteratorError) {
+                                    throw _iteratorError;
                                 }
                             }
                         }
                     }
                 }
             }.bind(this);
-            var _iteratorNormalCompletion3 = true;
-            var _didIteratorError3 = false;
-            var _iteratorError3 = undefined;
+            var _iteratorNormalCompletion2 = true;
+            var _didIteratorError2 = false;
+            var _iteratorError2 = undefined;
 
             try {
-                for (var _iterator3 = (0, _getIterator3.default)(this.currentData), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-                    var item = _step3.value;
+                for (var _iterator2 = (0, _getIterator3.default)(this.currentData), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+                    var item = _step2.value;
 
                     if (_search(item)) return true;
                 }
             } catch (err) {
-                _didIteratorError3 = true;
-                _iteratorError3 = err;
+                _didIteratorError2 = true;
+                _iteratorError2 = err;
             } finally {
                 try {
-                    if (!_iteratorNormalCompletion3 && _iterator3.return) {
-                        _iterator3.return();
+                    if (!_iteratorNormalCompletion2 && _iterator2.return) {
+                        _iterator2.return();
                     }
                 } finally {
-                    if (_didIteratorError3) {
-                        throw _iteratorError3;
+                    if (_didIteratorError2) {
+                        throw _iteratorError2;
                     }
                 }
             }
         },
         rebuild: function rebuild() {
-            var _this4 = this;
+            var _this5 = this;
 
             var keys = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : ['title'];
 
@@ -26061,45 +26056,45 @@ exports.default = {
             var stack = [];
             var query = this.query;
             var insertData = function (stack, node) {
-                (0, _newArrowCheck3.default)(this, _this4);
+                (0, _newArrowCheck3.default)(this, _this5);
 
                 var p = tree;
                 var found = void 0;
-                var _iteratorNormalCompletion4 = true;
-                var _didIteratorError4 = false;
-                var _iteratorError4 = undefined;
+                var _iteratorNormalCompletion3 = true;
+                var _didIteratorError3 = false;
+                var _iteratorError3 = undefined;
 
                 try {
-                    for (var _iterator4 = (0, _getIterator3.default)(stack), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
-                        var item = _step4.value;
+                    for (var _iterator3 = (0, _getIterator3.default)(stack), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+                        var item = _step3.value;
 
                         found = false;
-                        var _iteratorNormalCompletion5 = true;
-                        var _didIteratorError5 = false;
-                        var _iteratorError5 = undefined;
+                        var _iteratorNormalCompletion4 = true;
+                        var _didIteratorError4 = false;
+                        var _iteratorError4 = undefined;
 
                         try {
-                            for (var _iterator5 = (0, _getIterator3.default)(p), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
-                                var c = _step5.value;
+                            for (var _iterator4 = (0, _getIterator3.default)(p), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+                                var c = _step4.value;
 
                                 if (c.id === item.id) {
-                                    if (!c.children) c.children = [];
-                                    p = c.children;
+                                    if (!c[this.childrenKey]) c[this.childrenKey] = [];
+                                    p = c[this.childrenKey];
                                     found = true;
                                     break;
                                 }
                             }
                         } catch (err) {
-                            _didIteratorError5 = true;
-                            _iteratorError5 = err;
+                            _didIteratorError4 = true;
+                            _iteratorError4 = err;
                         } finally {
                             try {
-                                if (!_iteratorNormalCompletion5 && _iterator5.return) {
-                                    _iterator5.return();
+                                if (!_iteratorNormalCompletion4 && _iterator4.return) {
+                                    _iterator4.return();
                                 }
                             } finally {
-                                if (_didIteratorError5) {
-                                    throw _iteratorError5;
+                                if (_didIteratorError4) {
+                                    throw _iteratorError4;
                                 }
                             }
                         }
@@ -26107,96 +26102,96 @@ exports.default = {
                         if (!found) {
                             var _n = (0, _assign2.default)({}, item);
                             p.push(_n);
-                            _n.children = [];
+                            _n[this.childrenKey] = [];
                             _n.selected = false;
                             _n.checked = false;
                             _n.indeterminate = false;
-                            p = _n.children;
+                            p = _n[this.childrenKey];
                         }
                     }
                 } catch (err) {
-                    _didIteratorError4 = true;
-                    _iteratorError4 = err;
+                    _didIteratorError3 = true;
+                    _iteratorError3 = err;
                 } finally {
                     try {
-                        if (!_iteratorNormalCompletion4 && _iterator4.return) {
-                            _iterator4.return();
+                        if (!_iteratorNormalCompletion3 && _iterator3.return) {
+                            _iterator3.return();
                         }
                     } finally {
-                        if (_didIteratorError4) {
-                            throw _iteratorError4;
+                        if (_didIteratorError3) {
+                            throw _iteratorError3;
                         }
                     }
                 }
 
                 var n = (0, _assign2.default)({}, node);
                 p.push(n);
-                if (n.hasOwnProperty('children')) delete n.children;
+                if (n.hasOwnProperty(this.childrenKey)) delete n[this.childrenKey];
                 n.selected = false;
                 n.checked = false;
                 n.indeterminate = false;
             }.bind(this);
 
             var match = function (node) {
-                (0, _newArrowCheck3.default)(this, _this4);
-                var _iteratorNormalCompletion6 = true;
-                var _didIteratorError6 = false;
-                var _iteratorError6 = undefined;
+                (0, _newArrowCheck3.default)(this, _this5);
+                var _iteratorNormalCompletion5 = true;
+                var _didIteratorError5 = false;
+                var _iteratorError5 = undefined;
 
                 try {
-                    for (var _iterator6 = (0, _getIterator3.default)(keys), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
-                        var k = _step6.value;
+                    for (var _iterator5 = (0, _getIterator3.default)(keys), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
+                        var k = _step5.value;
 
                         if (node[k] && (node[k] + '').indexOf(query) > -1) {
                             return true;
                         }
                     }
                 } catch (err) {
-                    _didIteratorError6 = true;
-                    _iteratorError6 = err;
+                    _didIteratorError5 = true;
+                    _iteratorError5 = err;
                 } finally {
                     try {
-                        if (!_iteratorNormalCompletion6 && _iterator6.return) {
-                            _iterator6.return();
+                        if (!_iteratorNormalCompletion5 && _iterator5.return) {
+                            _iterator5.return();
                         }
                     } finally {
-                        if (_didIteratorError6) {
-                            throw _iteratorError6;
+                        if (_didIteratorError5) {
+                            throw _iteratorError5;
                         }
                     }
                 }
             }.bind(this);
             var find = function (parent) {
-                (0, _newArrowCheck3.default)(this, _this4);
+                (0, _newArrowCheck3.default)(this, _this5);
 
-                if (!parent.children || parent.children && parent.children.length === 0) {
+                if (!parent[this.childrenKey] || parent[this.childrenKey] && parent[this.childrenKey].length === 0) {
                     if ((this.multiple && this.model.indexOf(parent.id) === -1 || !this.multiple && self.model !== parent.id) && match(parent)) insertData(stack, parent);
                 } else {
                     if (!this.onlyLeaf) {
                         if (match(parent)) insertData(stack, parent);
                     }
                     stack.push(parent);
-                    var _iteratorNormalCompletion7 = true;
-                    var _didIteratorError7 = false;
-                    var _iteratorError7 = undefined;
+                    var _iteratorNormalCompletion6 = true;
+                    var _didIteratorError6 = false;
+                    var _iteratorError6 = undefined;
 
                     try {
-                        for (var _iterator7 = (0, _getIterator3.default)(parent.children), _step7; !(_iteratorNormalCompletion7 = (_step7 = _iterator7.next()).done); _iteratorNormalCompletion7 = true) {
-                            var c = _step7.value;
+                        for (var _iterator6 = (0, _getIterator3.default)(parent[this.childrenKey]), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
+                            var c = _step6.value;
 
                             find(c);
                         }
                     } catch (err) {
-                        _didIteratorError7 = true;
-                        _iteratorError7 = err;
+                        _didIteratorError6 = true;
+                        _iteratorError6 = err;
                     } finally {
                         try {
-                            if (!_iteratorNormalCompletion7 && _iterator7.return) {
-                                _iterator7.return();
+                            if (!_iteratorNormalCompletion6 && _iterator6.return) {
+                                _iterator6.return();
                             }
                         } finally {
-                            if (_didIteratorError7) {
-                                throw _iteratorError7;
+                            if (_didIteratorError6) {
+                                throw _iteratorError6;
                             }
                         }
                     }
@@ -26205,27 +26200,27 @@ exports.default = {
                 }
             }.bind(this);
             if (this.oldData && this.oldData.length > 0) {
-                var _iteratorNormalCompletion8 = true;
-                var _didIteratorError8 = false;
-                var _iteratorError8 = undefined;
+                var _iteratorNormalCompletion7 = true;
+                var _didIteratorError7 = false;
+                var _iteratorError7 = undefined;
 
                 try {
-                    for (var _iterator8 = (0, _getIterator3.default)(this.oldData), _step8; !(_iteratorNormalCompletion8 = (_step8 = _iterator8.next()).done); _iteratorNormalCompletion8 = true) {
-                        var item = _step8.value;
+                    for (var _iterator7 = (0, _getIterator3.default)(this.oldData), _step7; !(_iteratorNormalCompletion7 = (_step7 = _iterator7.next()).done); _iteratorNormalCompletion7 = true) {
+                        var item = _step7.value;
 
                         find(item);
                     }
                 } catch (err) {
-                    _didIteratorError8 = true;
-                    _iteratorError8 = err;
+                    _didIteratorError7 = true;
+                    _iteratorError7 = err;
                 } finally {
                     try {
-                        if (!_iteratorNormalCompletion8 && _iterator8.return) {
-                            _iterator8.return();
+                        if (!_iteratorNormalCompletion7 && _iterator7.return) {
+                            _iterator7.return();
                         }
                     } finally {
-                        if (_didIteratorError8) {
-                            throw _iteratorError8;
+                        if (_didIteratorError7) {
+                            throw _iteratorError7;
                         }
                     }
                 }
@@ -26233,76 +26228,76 @@ exports.default = {
             return tree;
         },
         checkItems: function checkItems() {
-            var _this5 = this;
+            var _this6 = this;
 
             var find = function (parent) {
-                (0, _newArrowCheck3.default)(this, _this5);
+                (0, _newArrowCheck3.default)(this, _this6);
 
                 if (this.model.indexOf(parent.id) > -1) {
                     var changed = { checked: true, nodeKey: parent.nodeKey };
                     this.$refs.selector.handleCheck(changed);
                 }
-                if (parent.children && parent.children.length > 0) {
-                    var _iteratorNormalCompletion9 = true;
-                    var _didIteratorError9 = false;
-                    var _iteratorError9 = undefined;
+                if (parent[this.childrenKey] && parent[this.childrenKey].length > 0) {
+                    var _iteratorNormalCompletion8 = true;
+                    var _didIteratorError8 = false;
+                    var _iteratorError8 = undefined;
 
                     try {
-                        for (var _iterator9 = (0, _getIterator3.default)(parent.children), _step9; !(_iteratorNormalCompletion9 = (_step9 = _iterator9.next()).done); _iteratorNormalCompletion9 = true) {
-                            var c = _step9.value;
+                        for (var _iterator8 = (0, _getIterator3.default)(parent[this.childrenKey]), _step8; !(_iteratorNormalCompletion8 = (_step8 = _iterator8.next()).done); _iteratorNormalCompletion8 = true) {
+                            var c = _step8.value;
 
                             find(c);
                         }
                     } catch (err) {
-                        _didIteratorError9 = true;
-                        _iteratorError9 = err;
+                        _didIteratorError8 = true;
+                        _iteratorError8 = err;
                     } finally {
                         try {
-                            if (!_iteratorNormalCompletion9 && _iterator9.return) {
-                                _iterator9.return();
+                            if (!_iteratorNormalCompletion8 && _iterator8.return) {
+                                _iterator8.return();
                             }
                         } finally {
-                            if (_didIteratorError9) {
-                                throw _iteratorError9;
+                            if (_didIteratorError8) {
+                                throw _iteratorError8;
                             }
                         }
                     }
                 }
             }.bind(this);
-            var _iteratorNormalCompletion10 = true;
-            var _didIteratorError10 = false;
-            var _iteratorError10 = undefined;
+            var _iteratorNormalCompletion9 = true;
+            var _didIteratorError9 = false;
+            var _iteratorError9 = undefined;
 
             try {
-                for (var _iterator10 = (0, _getIterator3.default)(this.currentData), _step10; !(_iteratorNormalCompletion10 = (_step10 = _iterator10.next()).done); _iteratorNormalCompletion10 = true) {
-                    var item = _step10.value;
+                for (var _iterator9 = (0, _getIterator3.default)(this.currentData), _step9; !(_iteratorNormalCompletion9 = (_step9 = _iterator9.next()).done); _iteratorNormalCompletion9 = true) {
+                    var item = _step9.value;
 
                     find(item);
                 }
             } catch (err) {
-                _didIteratorError10 = true;
-                _iteratorError10 = err;
+                _didIteratorError9 = true;
+                _iteratorError9 = err;
             } finally {
                 try {
-                    if (!_iteratorNormalCompletion10 && _iterator10.return) {
-                        _iterator10.return();
+                    if (!_iteratorNormalCompletion9 && _iterator9.return) {
+                        _iterator9.return();
                     }
                 } finally {
-                    if (_didIteratorError10) {
-                        throw _iteratorError10;
+                    if (_didIteratorError9) {
+                        throw _iteratorError9;
                     }
                 }
             }
         },
         loadData: function loadData(item, callback) {
-            var _this6 = this;
+            var _this7 = this;
 
             if (!this.remoteLoadData) return;
             if (item && callback) {
                 this.remoteLoadData(item, callback);
             } else {
                 var cb = function (data) {
-                    (0, _newArrowCheck3.default)(this, _this6);
+                    (0, _newArrowCheck3.default)(this, _this7);
 
                     this.currentData = data;
                     this.notFound = this.currentData.length === 0;
@@ -26310,30 +26305,103 @@ exports.default = {
                 this.remoteLoadData(item, cb);
             }
         },
+        isSelected: function isSelected(item) {
+            if (this.multiple) {
+                var _iteratorNormalCompletion10 = true;
+                var _didIteratorError10 = false;
+                var _iteratorError10 = undefined;
+
+                try {
+                    for (var _iterator10 = (0, _getIterator3.default)(this.selectedMultiple), _step10; !(_iteratorNormalCompletion10 = (_step10 = _iterator10.next()).done); _iteratorNormalCompletion10 = true) {
+                        var c = _step10.value;
+
+                        if (item.id === c.value) {
+                            return true;
+                        }
+                    }
+                } catch (err) {
+                    _didIteratorError10 = true;
+                    _iteratorError10 = err;
+                } finally {
+                    try {
+                        if (!_iteratorNormalCompletion10 && _iterator10.return) {
+                            _iterator10.return();
+                        }
+                    } finally {
+                        if (_didIteratorError10) {
+                            throw _iteratorError10;
+                        }
+                    }
+                }
+            } else {
+                if (item.id === this.selectedSingle) {
+                    return true;
+                }
+            }
+        },
         handleRemoteLoadData: function handleRemoteLoadData(item, callback) {
             this.loadData(item, callback);
+        },
+        handleUpdatePopper: function handleUpdatePopper() {
+            var _this8 = this;
+
+            var walk = function (data) {
+                (0, _newArrowCheck3.default)(this, _this8);
+                var _iteratorNormalCompletion11 = true;
+                var _didIteratorError11 = false;
+                var _iteratorError11 = undefined;
+
+                try {
+                    for (var _iterator11 = (0, _getIterator3.default)(data), _step11; !(_iteratorNormalCompletion11 = (_step11 = _iterator11.next()).done); _iteratorNormalCompletion11 = true) {
+                        var item = _step11.value;
+
+                        if (this.isSelected(item)) {
+                            this.$set(item, 'checked', true);
+                        }
+                        if (item[this.childrenKey] && item[this.childrenKey].length > 0) {
+                            walk(item[this.childrenKey]);
+                        }
+                    }
+                } catch (err) {
+                    _didIteratorError11 = true;
+                    _iteratorError11 = err;
+                } finally {
+                    try {
+                        if (!_iteratorNormalCompletion11 && _iterator11.return) {
+                            _iterator11.return();
+                        }
+                    } finally {
+                        if (_didIteratorError11) {
+                            throw _iteratorError11;
+                        }
+                    }
+                }
+            }.bind(this);
+            if (this.multiple) walk(this.currentData);
         }
     },
 
     watch: {
         value: {
             handler: function handler(val) {
-                var _this7 = this;
+                var _this9 = this;
 
-                if (!val) {
+                if (!val || Array.isArray(val) && val.length === 0) {
                     this.model = val;
                     this.query = '';
+                    this.selectedSingle = '';
+                    this.selectedMultiple = [];
                 } else {
                     if (this.labelInValue) {
                         if (this.multiple) {
                             this.model = val.map(function (x) {
-                                (0, _newArrowCheck3.default)(this, _this7);
+                                (0, _newArrowCheck3.default)(this, _this9);
                                 return x.value;
                             }.bind(this));
                             this.currentLabel = val.slice();
                         } else {
                             this.model = val.value;
-                            this.currentLabel = val.label;
+                            this.currentLabel = this.model ? val.label : '';
                         }
                     } else {
                         this.model = val;
@@ -26425,7 +26493,7 @@ exports.default = {
             }
         },
         query: function query(val) {
-            var _this8 = this;
+            var _this10 = this;
 
             if (this.remote && this.remoteQuery) {
                 if (val) {
@@ -26433,7 +26501,7 @@ exports.default = {
                         this.oldData = this.currentData;
                     }
                     var cb = function (data) {
-                        (0, _newArrowCheck3.default)(this, _this8);
+                        (0, _newArrowCheck3.default)(this, _this10);
 
                         this.currentData = data;
                         this.notFound = this.currentData.length === 0;
@@ -28359,10 +28427,10 @@ Object.defineProperty(exports, "__esModule", {
 var render = function render() {
   var _vm = this;var _h = _vm.$createElement;var _c = _vm._self._c || _h;return _c('div', { directives: [{ name: "clickoutside", rawName: "v-clickoutside", value: _vm.handleClose, expression: "handleClose" }], class: _vm.classes }, [_c('div', { ref: "reference", class: _vm.selectionCls, on: { "click": _vm.toggleMenu } }, [_vm._t("input", [_c('input', { attrs: { "type": "hidden", "name": _vm.name }, domProps: { "value": _vm.model } }), _vm._v(" "), _vm._l(_vm.selectedMultiple, function (item, index) {
     return _c('div', { staticClass: "ivu-tag ivu-tag-checked" }, [_c('span', { staticClass: "ivu-tag-text" }, [_vm._v(_vm._s(item.label))]), _vm._v(" "), _c('Icon', { attrs: { "type": "ios-close" }, nativeOn: { "click": function click($event) {
-          $event.stopPropagation();_vm.removeTag(index);
+          $event.stopPropagation();return _vm.removeTag(index);
         } } })], 1);
   }), _vm._v(" "), _c('span', { directives: [{ name: "show", rawName: "v-show", value: _vm.showPlaceholder && !_vm.filterable, expression: "showPlaceholder && !filterable" }], class: [_vm.prefixCls + '-placeholder'] }, [_vm._v(_vm._s(_vm.localePlaceholder))]), _vm._v(" "), _c('span', { directives: [{ name: "show", rawName: "v-show", value: !_vm.showPlaceholder && !_vm.multiple && !_vm.filterable, expression: "!showPlaceholder && !multiple && !filterable" }], class: [_vm.prefixCls + '-selected-value'] }, [_vm._v(_vm._s(_vm.selectedSingle))]), _vm._v(" "), _vm.filterable ? _c('input', { directives: [{ name: "model", rawName: "v-model", value: _vm.query, expression: "query" }], ref: "input", class: [_vm.prefixCls + '-input'], style: _vm.inputStyle, attrs: { "id": _vm.elementId, "type": "text", "disabled": _vm.disabled, "placeholder": _vm.showPlaceholder ? _vm.localePlaceholder : '', "autocomplete": "off", "spellcheck": "false" }, domProps: { "value": _vm.query }, on: { "blur": _vm.handleBlur, "keydown": [_vm.resetInputState, function ($event) {
-        if (!('button' in $event) && _vm._k($event.keyCode, "delete", [8, 46], $event.key, ["Backspace", "Delete"])) {
+        if (!$event.type.indexOf('key') && _vm._k($event.keyCode, "delete", [8, 46], $event.key, ["Backspace", "Delete", "Del"])) {
           return null;
         }return _vm.handleInputDelete($event);
       }], "input": function input($event) {
@@ -28627,11 +28695,11 @@ Object.defineProperty(exports, "__esModule", {
 });
 var render = function render() {
   var _vm = this;var _h = _vm.$createElement;var _c = _vm._self._c || _h;return _c('div', { class: _vm.wrapClasses }, [_vm.type !== 'textarea' ? [_vm.prepend ? _c('div', { directives: [{ name: "show", rawName: "v-show", value: _vm.slotReady, expression: "slotReady" }], class: [_vm.prefixCls + '-group-prepend'] }, [_vm._t("prepend")], 2) : _vm._e(), _vm._v(" "), _vm.clearable && _vm.currentValue && !_vm.disabled ? _c('i', { staticClass: "ivu-icon", class: ['ivu-icon-ios-close-circle', _vm.prefixCls + '-icon', _vm.prefixCls + '-icon-clear', _vm.prefixCls + '-icon-normal'], on: { "click": _vm.handleClear } }) : _vm.icon ? _c('i', { staticClass: "ivu-icon", class: ['ivu-icon-' + _vm.icon, _vm.prefixCls + '-icon', _vm.prefixCls + '-icon-normal'], on: { "click": _vm.handleIconClick } }) : _vm.search && _vm.enterButton === false ? _c('i', { staticClass: "ivu-icon ivu-icon-ios-search", class: [_vm.prefixCls + '-icon', _vm.prefixCls + '-icon-normal', _vm.prefixCls + '-search-icon'], on: { "click": _vm.handleSearch } }) : _vm.showSuffix ? _c('span', { staticClass: "ivu-input-suffix" }, [_vm._t("suffix", [_vm.suffix ? _c('i', { staticClass: "ivu-icon", class: ['ivu-icon-' + _vm.suffix] }) : _vm._e()])], 2) : _vm._e(), _vm._v(" "), _c('transition', { attrs: { "name": "fade" } }, [!_vm.icon ? _c('i', { staticClass: "ivu-icon ivu-icon-ios-loading ivu-load-loop", class: [_vm.prefixCls + '-icon', _vm.prefixCls + '-icon-validate'] }) : _vm._e()]), _vm._v(" "), _c('input', { ref: "input", class: _vm.inputClasses, attrs: { "id": _vm.elementId, "autocomplete": _vm.autocomplete, "spellcheck": _vm.spellcheck, "type": _vm.type, "placeholder": _vm.placeholder, "disabled": _vm.disabled, "maxlength": _vm.maxlength, "readonly": _vm.readonly, "name": _vm.name, "number": _vm.number, "autofocus": _vm.autofocus }, domProps: { "value": _vm.currentValue }, on: { "keyup": [function ($event) {
-        if (!('button' in $event) && _vm._k($event.keyCode, "enter", 13, $event.key, "Enter")) {
+        if (!$event.type.indexOf('key') && _vm._k($event.keyCode, "enter", 13, $event.key, "Enter")) {
           return null;
         }return _vm.handleEnter($event);
       }, _vm.handleKeyup], "keypress": _vm.handleKeypress, "keydown": _vm.handleKeydown, "focus": _vm.handleFocus, "blur": _vm.handleBlur, "compositionstart": _vm.handleComposition, "compositionupdate": _vm.handleComposition, "compositionend": _vm.handleComposition, "input": _vm.handleInput, "change": _vm.handleChange } }), _vm._v(" "), _vm.append ? _c('div', { directives: [{ name: "show", rawName: "v-show", value: _vm.slotReady, expression: "slotReady" }], class: [_vm.prefixCls + '-group-append'] }, [_vm._t("append")], 2) : _vm.search && _vm.enterButton ? _c('div', { class: [_vm.prefixCls + '-group-append', _vm.prefixCls + '-search'], on: { "click": _vm.handleSearch } }, [_vm.enterButton === true ? _c('i', { staticClass: "ivu-icon ivu-icon-ios-search" }) : [_vm._v(_vm._s(_vm.enterButton))]], 2) : _vm.showPrefix ? _c('span', { staticClass: "ivu-input-prefix" }, [_vm._t("prefix", [_vm.prefix ? _c('i', { staticClass: "ivu-icon", class: ['ivu-icon-' + _vm.prefix] }) : _vm._e()])], 2) : _vm._e()] : _c('textarea', { ref: "textarea", class: _vm.textareaClasses, style: _vm.textareaStyles, attrs: { "id": _vm.elementId, "wrap": _vm.wrap, "autocomplete": _vm.autocomplete, "spellcheck": _vm.spellcheck, "placeholder": _vm.placeholder, "disabled": _vm.disabled, "rows": _vm.rows, "maxlength": _vm.maxlength, "readonly": _vm.readonly, "name": _vm.name, "autofocus": _vm.autofocus }, domProps: { "value": _vm.currentValue }, on: { "keyup": [function ($event) {
-        if (!('button' in $event) && _vm._k($event.keyCode, "enter", 13, $event.key, "Enter")) {
+        if (!$event.type.indexOf('key') && _vm._k($event.keyCode, "enter", 13, $event.key, "Enter")) {
           return null;
         }return _vm.handleEnter($event);
       }, _vm.handleKeyup], "keypress": _vm.handleKeypress, "keydown": _vm.handleKeydown, "focus": _vm.handleFocus, "blur": _vm.handleBlur, "compositionstart": _vm.handleComposition, "compositionupdate": _vm.handleComposition, "compositionend": _vm.handleComposition, "input": _vm.handleInput } })], 2);
@@ -29019,15 +29087,15 @@ var render = function render() {
   var _vm = this;var _h = _vm.$createElement;var _c = _vm._self._c || _h;return _c('span', [_vm.to ? _c('a', { class: _vm.linkClasses, attrs: { "href": _vm.linkUrl, "target": _vm.target }, on: { "click": [function ($event) {
         if ($event.ctrlKey || $event.shiftKey || $event.altKey || $event.metaKey) {
           return null;
-        }_vm.handleCheckClick($event, false);
+        }return _vm.handleCheckClick($event, false);
       }, function ($event) {
         if (!$event.ctrlKey) {
           return null;
-        }_vm.handleCheckClick($event, true);
+        }return _vm.handleCheckClick($event, true);
       }, function ($event) {
         if (!$event.metaKey) {
           return null;
-        }_vm.handleCheckClick($event, true);
+        }return _vm.handleCheckClick($event, true);
       }] } }, [_vm._t("default")], 2) : _c('span', { class: _vm.linkClasses }, [_vm._t("default")], 2), _vm._v(" "), !_vm.showSeparator ? _c('span', { class: _vm.separatorClasses, domProps: { "innerHTML": _vm._s(_vm.separator) } }) : _c('span', { class: _vm.separatorClasses }, [_vm._t("separator")], 2)]);
 };
 var staticRenderFns = [];
@@ -29281,14 +29349,14 @@ Object.defineProperty(exports, "__esModule", {
 });
 var render = function render() {
   var _vm = this;var _h = _vm.$createElement;var _c = _vm._self._c || _h;return _c('div', { class: _vm.classes }, [_c('button', { staticClass: "left", class: _vm.arrowClasses, attrs: { "type": "button" }, on: { "click": function click($event) {
-        _vm.arrowEvent(-1);
+        return _vm.arrowEvent(-1);
       } } }, [_c('Icon', { attrs: { "type": "ios-arrow-back" } })], 1), _vm._v(" "), _c('div', { class: [_vm.prefixCls + '-list'] }, [_c('div', { ref: "originTrack", class: [_vm.prefixCls + '-track', _vm.showCopyTrack ? '' : 'higher'], style: _vm.trackStyles }, [_vm._t("default")], 2), _vm._v(" "), _vm.loop ? _c('div', { ref: "copyTrack", class: [_vm.prefixCls + '-track', _vm.showCopyTrack ? 'higher' : ''], style: _vm.copyTrackStyles }) : _vm._e()]), _vm._v(" "), _c('button', { staticClass: "right", class: _vm.arrowClasses, attrs: { "type": "button" }, on: { "click": function click($event) {
-        _vm.arrowEvent(1);
+        return _vm.arrowEvent(1);
       } } }, [_c('Icon', { attrs: { "type": "ios-arrow-forward" } })], 1), _vm._v(" "), _c('ul', { class: _vm.dotsClasses }, [_vm._l(_vm.slides.length, function (n) {
     return [_c('li', { class: [n - 1 === _vm.currentIndex ? _vm.prefixCls + '-active' : ''], on: { "click": function click($event) {
-          _vm.dotsEvent('click', n - 1);
+          return _vm.dotsEvent('click', n - 1);
         }, "mouseover": function mouseover($event) {
-          _vm.dotsEvent('hover', n - 1);
+          return _vm.dotsEvent('hover', n - 1);
         } } }, [_c('button', { class: [_vm.radiusDot ? 'radius' : ''], attrs: { "type": "button" } })])];
   })], 2)]);
 };
@@ -29597,11 +29665,11 @@ Object.defineProperty(exports, "__esModule", {
 var render = function render() {
   var _vm = this;var _h = _vm.$createElement;var _c = _vm._self._c || _h;return _c('span', [_vm.data && _vm.data.length ? _c('ul', { class: [_vm.prefixCls + '-menu'] }, _vm._l(_vm.data, function (item) {
     return _c('Casitem', { key: _vm.getKey(), attrs: { "prefix-cls": _vm.prefixCls, "data": item, "tmp-item": _vm.tmpItem }, nativeOn: { "click": function click($event) {
-          $event.stopPropagation();_vm.handleClickItem(item);
+          $event.stopPropagation();return _vm.handleClickItem(item);
         }, "mouseenter": function mouseenter($event) {
-          $event.stopPropagation();_vm.handleHoverItem(item);
+          $event.stopPropagation();return _vm.handleHoverItem(item);
         } } });
-  })) : _vm._e(), _vm.sublist && _vm.sublist.length ? _c('Caspanel', { attrs: { "prefix-cls": _vm.prefixCls, "data": _vm.sublist, "disabled": _vm.disabled, "trigger": _vm.trigger, "change-on-select": _vm.changeOnSelect } }) : _vm._e()], 1);
+  }), 1) : _vm._e(), _vm.sublist && _vm.sublist.length ? _c('Caspanel', { attrs: { "prefix-cls": _vm.prefixCls, "data": _vm.sublist, "disabled": _vm.disabled, "trigger": _vm.trigger, "change-on-select": _vm.changeOnSelect } }) : _vm._e()], 1);
 };
 var staticRenderFns = [];
 exports.render = render;
@@ -29622,10 +29690,10 @@ var render = function render() {
         $event.stopPropagation();return _vm.clearSelect($event);
       } } }), _vm._v(" "), _c('Icon', { class: [_vm.prefixCls + '-arrow'], attrs: { "type": "ios-arrow-down" } })])], 2), _vm._v(" "), _c('transition', { attrs: { "name": "transition-drop" } }, [_c('Drop', { directives: [{ name: "show", rawName: "v-show", value: _vm.visible, expression: "visible" }, { name: "transfer-dom", rawName: "v-transfer-dom" }], ref: "drop", class: (_obj = {}, _obj[_vm.prefixCls + '-transfer'] = _vm.transfer, _obj), attrs: { "data-transfer": _vm.transfer, "transfer": _vm.transfer } }, [_c('div', [_c('Caspanel', { directives: [{ name: "show", rawName: "v-show", value: !_vm.filterable || _vm.filterable && _vm.query === '', expression: "!filterable || (filterable && query === '')" }], ref: "caspanel", attrs: { "prefix-cls": _vm.prefixCls, "data": _vm.data, "disabled": _vm.disabled, "change-on-select": _vm.changeOnSelect, "trigger": _vm.trigger } }), _vm._v(" "), _c('div', { directives: [{ name: "show", rawName: "v-show", value: _vm.filterable && _vm.query !== '' && _vm.querySelections.length, expression: "filterable && query !== '' && querySelections.length" }], class: [_vm.prefixCls + '-dropdown'] }, [_c('ul', { class: [_vm.selectPrefixCls + '-dropdown-list'] }, _vm._l(_vm.querySelections, function (item, index) {
     return _c('li', { class: [_vm.selectPrefixCls + '-item', (_obj = {}, _obj[_vm.selectPrefixCls + '-item-disabled'] = item.disabled, _obj)], domProps: { "innerHTML": _vm._s(item.display) }, on: { "click": function click($event) {
-          _vm.handleSelectItem(index);
+          return _vm.handleSelectItem(index);
         } } });
     var _obj;
-  }))]), _vm._v(" "), _c('ul', { directives: [{ name: "show", rawName: "v-show", value: _vm.filterable && _vm.query !== '' && !_vm.querySelections.length, expression: "filterable && query !== '' && !querySelections.length" }], class: [_vm.prefixCls + '-not-found-tip'] }, [_c('li', [_vm._v(_vm._s(_vm.localeNotFoundText))])])], 1)])], 1)], 1);
+  }), 0)]), _vm._v(" "), _c('ul', { directives: [{ name: "show", rawName: "v-show", value: _vm.filterable && _vm.query !== '' && !_vm.querySelections.length, expression: "filterable && query !== '' && !querySelections.length" }], class: [_vm.prefixCls + '-not-found-tip'] }, [_c('li', [_vm._v(_vm._s(_vm.localeNotFoundText))])])], 1)])], 1)], 1);
   var _obj;
 };
 var staticRenderFns = [];
@@ -29765,16 +29833,16 @@ var render = function render() {
   var _vm = this;var _h = _vm.$createElement;var _c = _vm._self._c || _h;return _c('div', { class: _vm.classes }, [_vm.to ? _c('a', { staticClass: "ivu-cell-link", attrs: { "href": _vm.linkUrl, "target": _vm.target }, on: { "click": [function ($event) {
         if ($event.ctrlKey || $event.shiftKey || $event.altKey || $event.metaKey) {
           return null;
-        }_vm.handleClickItem($event, false);
+        }return _vm.handleClickItem($event, false);
       }, function ($event) {
         if (!$event.ctrlKey) {
           return null;
-        }_vm.handleClickItem($event, true);
+        }return _vm.handleClickItem($event, true);
       }, function ($event) {
         if (!$event.metaKey) {
           return null;
-        }_vm.handleClickItem($event, true);
-      }] } }, [_c('CellItem', { attrs: { "title": _vm.title, "label": _vm.label, "extra": _vm.extra } }, [_vm._t("icon", null, { slot: "icon" }), _vm._v(" "), _vm._t("default", null, { slot: "default" }), _vm._v(" "), _vm._t("extra", null, { slot: "extra" }), _vm._v(" "), _vm._t("label", null, { slot: "label" })], 2)], 1) : _c('div', { staticClass: "ivu-cell-link", on: { "click": _vm.handleClickItem } }, [_c('CellItem', { attrs: { "title": _vm.title, "label": _vm.label, "extra": _vm.extra } }, [_vm._t("icon", null, { slot: "icon" }), _vm._v(" "), _vm._t("default", null, { slot: "default" }), _vm._v(" "), _vm._t("extra", null, { slot: "extra" }), _vm._v(" "), _vm._t("label", null, { slot: "label" })], 2)], 1), _vm._v(" "), _vm.to ? _c('div', { staticClass: "ivu-cell-arrow" }, [_vm._t("arrow", [_c('Icon', { attrs: { "type": "ios-arrow-forward" } })])], 2) : _vm._e()]);
+        }return _vm.handleClickItem($event, true);
+      }] } }, [_c('CellItem', { attrs: { "title": _vm.title, "label": _vm.label, "extra": _vm.extra } }, [_vm._t("icon", null, { "slot": "icon" }), _vm._v(" "), _vm._t("default", null, { "slot": "default" }), _vm._v(" "), _vm._t("extra", null, { "slot": "extra" }), _vm._v(" "), _vm._t("label", null, { "slot": "label" })], 2)], 1) : _c('div', { staticClass: "ivu-cell-link", on: { "click": _vm.handleClickItem } }, [_c('CellItem', { attrs: { "title": _vm.title, "label": _vm.label, "extra": _vm.extra } }, [_vm._t("icon", null, { "slot": "icon" }), _vm._v(" "), _vm._t("default", null, { "slot": "default" }), _vm._v(" "), _vm._t("extra", null, { "slot": "extra" }), _vm._v(" "), _vm._t("label", null, { "slot": "label" })], 2)], 1), _vm._v(" "), _vm.to ? _c('div', { staticClass: "ivu-cell-arrow" }, [_vm._t("arrow", [_c('Icon', { attrs: { "type": "ios-arrow-forward" } })])], 2) : _vm._e()]);
 };
 var staticRenderFns = [];
 exports.render = render;
@@ -30250,33 +30318,33 @@ Object.defineProperty(exports, "__esModule", {
 });
 var render = function render() {
   var _vm = this;var _h = _vm.$createElement;var _c = _vm._self._c || _h;return _c('div', { ref: "reference", attrs: { "tabindex": "0" }, on: { "click": _vm.handleClick, "keydown": [function ($event) {
-        if (!('button' in $event) && _vm._k($event.keyCode, "esc", 27, $event.key, "Escape")) {
+        if (!$event.type.indexOf('key') && _vm._k($event.keyCode, "esc", 27, $event.key, ["Esc", "Escape"])) {
           return null;
         }return _vm.handleEscape($event);
       }, function ($event) {
-        if (!('button' in $event) && _vm._k($event.keyCode, "enter", 13, $event.key, "Enter")) {
+        if (!$event.type.indexOf('key') && _vm._k($event.keyCode, "enter", 13, $event.key, "Enter")) {
           return null;
         }return _vm.handleEnter($event);
       }, function ($event) {
-        if (!('button' in $event) && _vm._k($event.keyCode, "left", 37, $event.key, ["Left", "ArrowLeft"])) {
+        if (!$event.type.indexOf('key') && _vm._k($event.keyCode, "left", 37, $event.key, ["Left", "ArrowLeft"])) {
           return null;
         }if ('button' in $event && $event.button !== 0) {
           return null;
-        }_vm.handleArrow($event, 'x', _vm.left);
+        }return _vm.handleArrow($event, 'x', _vm.left);
       }, function ($event) {
-        if (!('button' in $event) && _vm._k($event.keyCode, "right", 39, $event.key, ["Right", "ArrowRight"])) {
+        if (!$event.type.indexOf('key') && _vm._k($event.keyCode, "right", 39, $event.key, ["Right", "ArrowRight"])) {
           return null;
         }if ('button' in $event && $event.button !== 2) {
           return null;
-        }_vm.handleArrow($event, 'x', _vm.right);
+        }return _vm.handleArrow($event, 'x', _vm.right);
       }, function ($event) {
-        if (!('button' in $event) && _vm._k($event.keyCode, "up", 38, $event.key, ["Up", "ArrowUp"])) {
+        if (!$event.type.indexOf('key') && _vm._k($event.keyCode, "up", 38, $event.key, ["Up", "ArrowUp"])) {
           return null;
-        }_vm.handleArrow($event, 'y', _vm.up);
+        }return _vm.handleArrow($event, 'y', _vm.up);
       }, function ($event) {
-        if (!('button' in $event) && _vm._k($event.keyCode, "down", 40, $event.key, ["Down", "ArrowDown"])) {
+        if (!$event.type.indexOf('key') && _vm._k($event.keyCode, "down", 40, $event.key, ["Down", "ArrowDown"])) {
           return null;
-        }_vm.handleArrow($event, 'y', _vm.down);
+        }return _vm.handleArrow($event, 'y', _vm.down);
       }], "blur": _vm.blurColor, "focus": _vm.focusColor } }, [_vm._l(_vm.list, function (item, index) {
     return [_c('div', { key: item + ':' + index, class: [_vm.prefixCls + '-picker-colors-wrapper'] }, [_c('div', { attrs: { "data-color-id": index } }, [_c('div', { class: [_vm.prefixCls + '-picker-colors-wrapper-color'], style: { background: item } }), _vm._v(" "), _c('div', { ref: 'color-circle-' + index, refInFor: true, class: [_vm.prefixCls + '-picker-colors-wrapper-circle', _vm.hideClass] })])]), _vm._v(" "), _vm.lineBreak(_vm.list, index) ? _c('br') : _vm._e()];
   })], 2);
@@ -30336,31 +30404,31 @@ Object.defineProperty(exports, "__esModule", {
 });
 var render = function render() {
   var _vm = this;var _h = _vm.$createElement;var _c = _vm._self._c || _h;return _c('div', { class: [_vm.prefixCls + '-saturation-wrapper'], attrs: { "tabindex": "0" }, on: { "keydown": [function ($event) {
-        if (!('button' in $event) && _vm._k($event.keyCode, "esc", 27, $event.key, "Escape")) {
+        if (!$event.type.indexOf('key') && _vm._k($event.keyCode, "esc", 27, $event.key, ["Esc", "Escape"])) {
           return null;
         }return _vm.handleEscape($event);
       }, function ($event) {
-        if (!('button' in $event) && _vm._k($event.keyCode, "left", 37, $event.key, ["Left", "ArrowLeft"])) {
+        if (!$event.type.indexOf('key') && _vm._k($event.keyCode, "left", 37, $event.key, ["Left", "ArrowLeft"])) {
           return null;
         }if ('button' in $event && $event.button !== 0) {
           return null;
         }return _vm.handleLeft($event);
       }, function ($event) {
-        if (!('button' in $event) && _vm._k($event.keyCode, "right", 39, $event.key, ["Right", "ArrowRight"])) {
+        if (!$event.type.indexOf('key') && _vm._k($event.keyCode, "right", 39, $event.key, ["Right", "ArrowRight"])) {
           return null;
         }if ('button' in $event && $event.button !== 2) {
           return null;
         }return _vm.handleRight($event);
       }, function ($event) {
-        if (!('button' in $event) && _vm._k($event.keyCode, "up", 38, $event.key, ["Up", "ArrowUp"])) {
+        if (!$event.type.indexOf('key') && _vm._k($event.keyCode, "up", 38, $event.key, ["Up", "ArrowUp"])) {
           return null;
         }return _vm.handleUp($event);
       }, function ($event) {
-        if (!('button' in $event) && _vm._k($event.keyCode, "down", 40, $event.key, ["Down", "ArrowDown"])) {
+        if (!$event.type.indexOf('key') && _vm._k($event.keyCode, "down", 40, $event.key, ["Down", "ArrowDown"])) {
           return null;
         }return _vm.handleDown($event);
       }], "click": function click($event) {
-        _vm.$el.focus();
+        return _vm.$el.focus();
       } } }, [_c('div', { ref: "container", class: [_vm.prefixCls + '-saturation'], style: _vm.bgColorStyle, on: { "mousedown": _vm.handleMouseDown } }, [_c('div', { class: [_vm.prefixCls + '-saturation--white'] }), _vm._v(" "), _c('div', { class: [_vm.prefixCls + '-saturation--black'] }), _vm._v(" "), _c('div', { class: [_vm.prefixCls + '-saturation-pointer'], style: _vm.pointerStyle }, [_c('div', { class: [_vm.prefixCls + '-saturation-circle'] })])])]);
 };
 var staticRenderFns = [];
@@ -30418,29 +30486,29 @@ Object.defineProperty(exports, "__esModule", {
 });
 var render = function render() {
   var _vm = this;var _h = _vm.$createElement;var _c = _vm._self._c || _h;return _c('div', { class: [_vm.prefixCls + '-hue'], attrs: { "tabindex": "0" }, on: { "click": function click($event) {
-        _vm.$el.focus();
+        return _vm.$el.focus();
       }, "keydown": [function ($event) {
-        if (!('button' in $event) && _vm._k($event.keyCode, "esc", 27, $event.key, "Escape")) {
+        if (!$event.type.indexOf('key') && _vm._k($event.keyCode, "esc", 27, $event.key, ["Esc", "Escape"])) {
           return null;
         }return _vm.handleEscape($event);
       }, function ($event) {
-        if (!('button' in $event) && _vm._k($event.keyCode, "left", 37, $event.key, ["Left", "ArrowLeft"])) {
+        if (!$event.type.indexOf('key') && _vm._k($event.keyCode, "left", 37, $event.key, ["Left", "ArrowLeft"])) {
           return null;
         }if ('button' in $event && $event.button !== 0) {
           return null;
         }return _vm.handleLeft($event);
       }, function ($event) {
-        if (!('button' in $event) && _vm._k($event.keyCode, "right", 39, $event.key, ["Right", "ArrowRight"])) {
+        if (!$event.type.indexOf('key') && _vm._k($event.keyCode, "right", 39, $event.key, ["Right", "ArrowRight"])) {
           return null;
         }if ('button' in $event && $event.button !== 2) {
           return null;
         }return _vm.handleRight($event);
       }, function ($event) {
-        if (!('button' in $event) && _vm._k($event.keyCode, "up", 38, $event.key, ["Up", "ArrowUp"])) {
+        if (!$event.type.indexOf('key') && _vm._k($event.keyCode, "up", 38, $event.key, ["Up", "ArrowUp"])) {
           return null;
         }return _vm.handleUp($event);
       }, function ($event) {
-        if (!('button' in $event) && _vm._k($event.keyCode, "down", 40, $event.key, ["Down", "ArrowDown"])) {
+        if (!$event.type.indexOf('key') && _vm._k($event.keyCode, "down", 40, $event.key, ["Down", "ArrowDown"])) {
           return null;
         }return _vm.handleDown($event);
       }] } }, [_c('div', { ref: "container", class: [_vm.prefixCls + '-hue-container'], on: { "mousedown": _vm.handleMouseDown, "touchmove": _vm.handleChange, "touchstart": _vm.handleChange } }, [_c('div', { class: [_vm.prefixCls + '-hue-pointer'], style: { top: 0, left: _vm.percent + "%" } }, [_c('div', { class: [_vm.prefixCls + '-hue-picker'] })])])]);
@@ -30500,29 +30568,29 @@ Object.defineProperty(exports, "__esModule", {
 });
 var render = function render() {
   var _vm = this;var _h = _vm.$createElement;var _c = _vm._self._c || _h;return _c('div', { class: [_vm.prefixCls + '-alpha'], attrs: { "tabindex": "0" }, on: { "click": function click($event) {
-        _vm.$el.focus();
+        return _vm.$el.focus();
       }, "keydown": [function ($event) {
-        if (!('button' in $event) && _vm._k($event.keyCode, "esc", 27, $event.key, "Escape")) {
+        if (!$event.type.indexOf('key') && _vm._k($event.keyCode, "esc", 27, $event.key, ["Esc", "Escape"])) {
           return null;
         }return _vm.handleEscape($event);
       }, function ($event) {
-        if (!('button' in $event) && _vm._k($event.keyCode, "left", 37, $event.key, ["Left", "ArrowLeft"])) {
+        if (!$event.type.indexOf('key') && _vm._k($event.keyCode, "left", 37, $event.key, ["Left", "ArrowLeft"])) {
           return null;
         }if ('button' in $event && $event.button !== 0) {
           return null;
         }return _vm.handleLeft($event);
       }, function ($event) {
-        if (!('button' in $event) && _vm._k($event.keyCode, "right", 39, $event.key, ["Right", "ArrowRight"])) {
+        if (!$event.type.indexOf('key') && _vm._k($event.keyCode, "right", 39, $event.key, ["Right", "ArrowRight"])) {
           return null;
         }if ('button' in $event && $event.button !== 2) {
           return null;
         }return _vm.handleRight($event);
       }, function ($event) {
-        if (!('button' in $event) && _vm._k($event.keyCode, "up", 38, $event.key, ["Up", "ArrowUp"])) {
+        if (!$event.type.indexOf('key') && _vm._k($event.keyCode, "up", 38, $event.key, ["Up", "ArrowUp"])) {
           return null;
         }return _vm.handleUp($event);
       }, function ($event) {
-        if (!('button' in $event) && _vm._k($event.keyCode, "down", 40, $event.key, ["Down", "ArrowDown"])) {
+        if (!$event.type.indexOf('key') && _vm._k($event.keyCode, "down", 40, $event.key, ["Down", "ArrowDown"])) {
           return null;
         }return _vm.handleDown($event);
       }] } }, [_c('div', { class: [_vm.prefixCls + '-alpha-checkboard-wrap'] }, [_c('div', { class: [_vm.prefixCls + '-alpha-checkerboard'] })]), _vm._v(" "), _c('div', { class: [_vm.prefixCls + '-alpha-gradient'], style: _vm.gradientStyle }), _vm._v(" "), _c('div', { ref: "container", class: [_vm.prefixCls + '-alpha-container'], on: { "mousedown": _vm.handleMouseDown, "touchmove": _vm.handleChange, "touchstart": _vm.handleChange } }, [_c('div', { class: [_vm.prefixCls + '-alpha-pointer'], style: { top: 0, left: _vm.value.a * 100 + "%" } }, [_c('div', { class: [_vm.prefixCls + '-alpha-picker'] })])])]);
@@ -30543,23 +30611,23 @@ Object.defineProperty(exports, "__esModule", {
 });
 var render = function render() {
   var _vm = this;var _h = _vm.$createElement;var _c = _vm._self._c || _h;return _c('div', { directives: [{ name: "click-outside", rawName: "v-click-outside", value: _vm.handleClose, expression: "handleClose" }], class: _vm.classes }, [_c('div', { ref: "reference", class: _vm.wrapClasses, on: { "click": _vm.toggleVisible } }, [_c('input', { attrs: { "name": _vm.name, "type": "hidden" }, domProps: { "value": _vm.currentValue } }), _vm._v(" "), _c('i', { class: _vm.arrowClasses }), _vm._v(" "), _c('div', { ref: "input", class: _vm.inputClasses, attrs: { "tabindex": _vm.disabled ? undefined : 0 }, on: { "keydown": [function ($event) {
-        if (!('button' in $event) && _vm._k($event.keyCode, "tab", 9, $event.key, "Tab")) {
+        if (!$event.type.indexOf('key') && _vm._k($event.keyCode, "tab", 9, $event.key, "Tab")) {
           return null;
         }return _vm.onTab($event);
       }, function ($event) {
-        if (!('button' in $event) && _vm._k($event.keyCode, "esc", 27, $event.key, "Escape")) {
+        if (!$event.type.indexOf('key') && _vm._k($event.keyCode, "esc", 27, $event.key, ["Esc", "Escape"])) {
           return null;
         }return _vm.onEscape($event);
       }, function ($event) {
-        if (!('button' in $event) && _vm._k($event.keyCode, "up", 38, $event.key, ["Up", "ArrowUp"])) {
+        if (!$event.type.indexOf('key') && _vm._k($event.keyCode, "up", 38, $event.key, ["Up", "ArrowUp"])) {
           return null;
         }return _vm.onArrow($event);
       }, function ($event) {
-        if (!('button' in $event) && _vm._k($event.keyCode, "down", 40, $event.key, ["Down", "ArrowDown"])) {
+        if (!$event.type.indexOf('key') && _vm._k($event.keyCode, "down", 40, $event.key, ["Down", "ArrowDown"])) {
           return null;
         }return _vm.onArrow($event);
       }] } }, [_c('div', { class: [_vm.prefixCls + '-color'] }, [_c('div', { directives: [{ name: "show", rawName: "v-show", value: _vm.value === '' && !_vm.visible, expression: "value === '' && !visible" }], class: [_vm.prefixCls + '-color-empty'] }, [_c('i', { class: [_vm.iconPrefixCls, _vm.iconPrefixCls + '-ios-close'] })]), _vm._v(" "), _c('div', { directives: [{ name: "show", rawName: "v-show", value: _vm.value || _vm.visible, expression: "value || visible" }], style: _vm.displayedColorStyle })])])]), _vm._v(" "), _c('transition', { attrs: { "name": "transition-drop" } }, [_c('Drop', { directives: [{ name: "transfer-dom", rawName: "v-transfer-dom" }, { name: "show", rawName: "v-show", value: _vm.visible, expression: "visible" }], ref: "drop", class: _vm.dropClasses, attrs: { "placement": _vm.placement, "data-transfer": _vm.transfer, "transfer": _vm.transfer } }, [_c('transition', { attrs: { "name": "fade" } }, [_vm.visible ? _c('div', { class: [_vm.prefixCls + '-picker'] }, [_c('div', { class: [_vm.prefixCls + '-picker-wrapper'] }, [_c('div', { class: [_vm.prefixCls + '-picker-panel'] }, [_c('Saturation', { ref: "saturation", attrs: { "focused": _vm.visible }, on: { "change": _vm.childChange }, nativeOn: { "keydown": function keydown($event) {
-        if (!('button' in $event) && _vm._k($event.keyCode, "tab", 9, $event.key, "Tab")) {
+        if (!$event.type.indexOf('key') && _vm._k($event.keyCode, "tab", 9, $event.key, "Tab")) {
           return null;
         }return _vm.handleFirstTab($event);
       } }, model: { value: _vm.saturationColors, callback: function callback($$v) {
@@ -30569,27 +30637,27 @@ var render = function render() {
       }, expression: "saturationColors" } })], 1) : _vm._e(), _vm._v(" "), _vm.alpha ? _c('div', { class: [_vm.prefixCls + '-picker-alpha-slider'] }, [_c('Alpha', { on: { "change": _vm.childChange }, model: { value: _vm.saturationColors, callback: function callback($$v) {
         _vm.saturationColors = $$v;
       }, expression: "saturationColors" } })], 1) : _vm._e(), _vm._v(" "), _vm.colors.length ? _c('recommend-colors', { class: [_vm.prefixCls + '-picker-colors'], attrs: { "list": _vm.colors }, on: { "picker-color": _vm.handleSelectColor } }) : _vm._e(), _vm._v(" "), !_vm.colors.length && _vm.recommend ? _c('recommend-colors', { class: [_vm.prefixCls + '-picker-colors'], attrs: { "list": _vm.recommendedColor }, on: { "picker-color": _vm.handleSelectColor } }) : _vm._e()], 1), _vm._v(" "), _c('div', { class: [_vm.prefixCls + '-confirm'] }, [_c('span', { class: _vm.confirmColorClasses }, [_vm.editable ? [_c('i-input', { attrs: { "value": _vm.formatColor, "size": "small" }, on: { "on-enter": _vm.handleEditColor, "on-blur": _vm.handleEditColor } })] : [_vm._v(_vm._s(_vm.formatColor))]], 2), _vm._v(" "), _c('i-button', { ref: "clear", attrs: { "tabindex": 0, "size": "small" }, on: { "keydown": function keydown($event) {
-        if (!('button' in $event) && _vm._k($event.keyCode, "enter", 13, $event.key, "Enter")) {
+        if (!$event.type.indexOf('key') && _vm._k($event.keyCode, "enter", 13, $event.key, "Enter")) {
           return null;
         }return _vm.handleClear($event);
       } }, nativeOn: { "click": function click($event) {
         return _vm.handleClear($event);
       }, "keydown": function keydown($event) {
-        if (!('button' in $event) && _vm._k($event.keyCode, "esc", 27, $event.key, "Escape")) {
+        if (!$event.type.indexOf('key') && _vm._k($event.keyCode, "esc", 27, $event.key, ["Esc", "Escape"])) {
           return null;
         }return _vm.closer($event);
       } } }, [_vm._v(_vm._s(_vm.t('i.datepicker.clear')))]), _vm._v(" "), _c('i-button', { ref: "ok", attrs: { "tabindex": 0, "size": "small", "type": "primary" }, on: { "keydown": function keydown($event) {
-        if (!('button' in $event) && _vm._k($event.keyCode, "enter", 13, $event.key, "Enter")) {
+        if (!$event.type.indexOf('key') && _vm._k($event.keyCode, "enter", 13, $event.key, "Enter")) {
           return null;
         }return _vm.handleSuccess($event);
       } }, nativeOn: { "click": function click($event) {
         return _vm.handleSuccess($event);
       }, "keydown": [function ($event) {
-        if (!('button' in $event) && _vm._k($event.keyCode, "tab", 9, $event.key, "Tab")) {
+        if (!$event.type.indexOf('key') && _vm._k($event.keyCode, "tab", 9, $event.key, "Tab")) {
           return null;
         }return _vm.handleLastTab($event);
       }, function ($event) {
-        if (!('button' in $event) && _vm._k($event.keyCode, "esc", 27, $event.key, "Escape")) {
+        if (!$event.type.indexOf('key') && _vm._k($event.keyCode, "esc", 27, $event.key, ["Esc", "Escape"])) {
           return null;
         }return _vm.closer($event);
       }] } }, [_vm._v(_vm._s(_vm.t('i.datepicker.ok')))])], 1)]) : _vm._e()])], 1)], 1)], 1);
@@ -31393,11 +31461,11 @@ Object.defineProperty(exports, "__esModule", {
 var render = function render() {
   var _vm = this;var _h = _vm.$createElement;var _c = _vm._self._c || _h;return _c('div', { class: _vm.classes }, [_c('div', { class: [_vm.prefixCls + '-header'] }, _vm._l(_vm.headerDays, function (day) {
     return _c('span', { key: day }, [_vm._v("\n            " + _vm._s(day) + "\n        ")]);
-  })), _vm._v(" "), _vm._l(_vm.cells, function (cell, i) {
+  }), 0), _vm._v(" "), _vm._l(_vm.cells, function (cell, i) {
     return _c('span', { key: String(cell.date) + i, class: _vm.getCellCls(cell), on: { "click": function click($event) {
-          _vm.handleClick(cell, $event);
+          return _vm.handleClick(cell, $event);
         }, "mouseenter": function mouseenter($event) {
-          _vm.handleMouseMove(cell);
+          return _vm.handleMouseMove(cell);
         } } }, [_c('em', [_vm._v(_vm._s(cell.desc))])]);
   })], 2);
 };
@@ -31418,11 +31486,11 @@ Object.defineProperty(exports, "__esModule", {
 var render = function render() {
   var _vm = this;var _h = _vm.$createElement;var _c = _vm._self._c || _h;return _c('div', { class: _vm.classes }, _vm._l(_vm.cells, function (cell) {
     return _c('span', { class: _vm.getCellCls(cell), on: { "click": function click($event) {
-          _vm.handleClick(cell);
+          return _vm.handleClick(cell);
         }, "mouseenter": function mouseenter($event) {
-          _vm.handleMouseMove(cell);
+          return _vm.handleMouseMove(cell);
         } } }, [_c('em', [_vm._v(_vm._s(cell.date.getFullYear()))])]);
-  }));
+  }), 0);
 };
 var staticRenderFns = [];
 exports.render = render;
@@ -31441,11 +31509,11 @@ Object.defineProperty(exports, "__esModule", {
 var render = function render() {
   var _vm = this;var _h = _vm.$createElement;var _c = _vm._self._c || _h;return _c('div', { class: _vm.classes }, _vm._l(_vm.cells, function (cell) {
     return _c('span', { class: _vm.getCellCls(cell), on: { "click": function click($event) {
-          _vm.handleClick(cell);
+          return _vm.handleClick(cell);
         }, "mouseenter": function mouseenter($event) {
-          _vm.handleMouseMove(cell);
+          return _vm.handleMouseMove(cell);
         } } }, [_c('em', [_vm._v(_vm._s(cell.text))])]);
-  }));
+  }), 0);
 };
 var staticRenderFns = [];
 exports.render = render;
@@ -31464,17 +31532,17 @@ Object.defineProperty(exports, "__esModule", {
 var render = function render() {
   var _vm = this;var _h = _vm.$createElement;var _c = _vm._self._c || _h;return _c('div', { class: _vm.classes }, [_c('div', { ref: "hours", class: [_vm.prefixCls + '-list'] }, [_c('ul', { class: [_vm.prefixCls + '-ul'] }, _vm._l(_vm.hoursList, function (item) {
     return _c('li', { directives: [{ name: "show", rawName: "v-show", value: !item.hide, expression: "!item.hide" }], class: _vm.getCellCls(item), on: { "click": function click($event) {
-          _vm.handleClick('hours', item);
+          return _vm.handleClick('hours', item);
         } } }, [_vm._v(_vm._s(_vm.formatTime(item.text)))]);
-  }))]), _vm._v(" "), _c('div', { ref: "minutes", class: [_vm.prefixCls + '-list'] }, [_c('ul', { class: [_vm.prefixCls + '-ul'] }, _vm._l(_vm.minutesList, function (item) {
+  }), 0)]), _vm._v(" "), _c('div', { ref: "minutes", class: [_vm.prefixCls + '-list'] }, [_c('ul', { class: [_vm.prefixCls + '-ul'] }, _vm._l(_vm.minutesList, function (item) {
     return _c('li', { directives: [{ name: "show", rawName: "v-show", value: !item.hide, expression: "!item.hide" }], class: _vm.getCellCls(item), on: { "click": function click($event) {
-          _vm.handleClick('minutes', item);
+          return _vm.handleClick('minutes', item);
         } } }, [_vm._v(_vm._s(_vm.formatTime(item.text)))]);
-  }))]), _vm._v(" "), _c('div', { directives: [{ name: "show", rawName: "v-show", value: _vm.showSeconds, expression: "showSeconds" }], ref: "seconds", class: [_vm.prefixCls + '-list'] }, [_c('ul', { class: [_vm.prefixCls + '-ul'] }, _vm._l(_vm.secondsList, function (item) {
+  }), 0)]), _vm._v(" "), _c('div', { directives: [{ name: "show", rawName: "v-show", value: _vm.showSeconds, expression: "showSeconds" }], ref: "seconds", class: [_vm.prefixCls + '-list'] }, [_c('ul', { class: [_vm.prefixCls + '-ul'] }, _vm._l(_vm.secondsList, function (item) {
     return _c('li', { directives: [{ name: "show", rawName: "v-show", value: !item.hide, expression: "!item.hide" }], class: _vm.getCellCls(item), on: { "click": function click($event) {
-          _vm.handleClick('seconds', item);
+          return _vm.handleClick('seconds', item);
         } } }, [_vm._v(_vm._s(_vm.formatTime(item.text)))]);
-  }))])]);
+  }), 0)])]);
 };
 var staticRenderFns = [];
 exports.render = render;
@@ -31492,19 +31560,19 @@ Object.defineProperty(exports, "__esModule", {
 });
 var render = function render() {
   var _vm = this;var _h = _vm.$createElement;var _c = _vm._self._c || _h;return _c('div', { class: [_vm.prefixCls + '-confirm'], on: { "!keydown": function keydown($event) {
-        if (!('button' in $event) && _vm._k($event.keyCode, "tab", 9, $event.key, "Tab")) {
+        if (!$event.type.indexOf('key') && _vm._k($event.keyCode, "tab", 9, $event.key, "Tab")) {
           return null;
         }return _vm.handleTab($event);
       } } }, [_vm.showTime ? _c('i-button', { class: _vm.timeClasses, attrs: { "size": "small", "type": "text", "disabled": _vm.timeDisabled }, on: { "click": _vm.handleToggleTime } }, [_vm._v("\n        " + _vm._s(_vm.labels.time) + "\n    ")]) : _vm._e(), _vm._v(" "), _c('i-button', { attrs: { "size": "small" }, nativeOn: { "click": function click($event) {
         return _vm.handleClear($event);
       }, "keydown": function keydown($event) {
-        if (!('button' in $event) && _vm._k($event.keyCode, "enter", 13, $event.key, "Enter")) {
+        if (!$event.type.indexOf('key') && _vm._k($event.keyCode, "enter", 13, $event.key, "Enter")) {
           return null;
         }return _vm.handleClear($event);
       } } }, [_vm._v("\n        " + _vm._s(_vm.labels.clear) + "\n    ")]), _vm._v(" "), _c('i-button', { attrs: { "size": "small", "type": "primary" }, nativeOn: { "click": function click($event) {
         return _vm.handleSuccess($event);
       }, "keydown": function keydown($event) {
-        if (!('button' in $event) && _vm._k($event.keyCode, "enter", 13, $event.key, "Enter")) {
+        if (!$event.type.indexOf('key') && _vm._k($event.keyCode, "enter", 13, $event.key, "Enter")) {
           return null;
         }return _vm.handleSuccess($event);
       } } }, [_vm._v("\n        " + _vm._s(_vm.labels.ok) + "\n    ")])], 1);
@@ -31564,16 +31632,16 @@ var render = function render() {
         $event.preventDefault();
       } } }, [_vm.shortcuts.length ? _c('div', { class: [_vm.prefixCls + '-sidebar'] }, _vm._l(_vm.shortcuts, function (shortcut) {
     return _c('div', { class: [_vm.prefixCls + '-shortcut'], on: { "click": function click($event) {
-          _vm.handleShortcutClick(shortcut);
+          return _vm.handleShortcutClick(shortcut);
         } } }, [_vm._v(_vm._s(shortcut.text))]);
-  })) : _vm._e(), _vm._v(" "), _c('div', { class: [_vm.prefixCls + '-body'] }, [_c('div', { directives: [{ name: "show", rawName: "v-show", value: _vm.currentView !== 'time', expression: "currentView !== 'time'" }], class: [_vm.datePrefixCls + '-header'] }, [_c('span', { class: _vm.iconBtnCls('prev', '-double'), on: { "click": function click($event) {
-        _vm.changeYear(-1);
+  }), 0) : _vm._e(), _vm._v(" "), _c('div', { class: [_vm.prefixCls + '-body'] }, [_c('div', { directives: [{ name: "show", rawName: "v-show", value: _vm.currentView !== 'time', expression: "currentView !== 'time'" }], class: [_vm.datePrefixCls + '-header'] }, [_c('span', { class: _vm.iconBtnCls('prev', '-double'), on: { "click": function click($event) {
+        return _vm.changeYear(-1);
       } } }, [_c('Icon', { attrs: { "type": "ios-arrow-back" } })], 1), _vm._v(" "), _vm.pickerTable === 'date-table' ? _c('span', { directives: [{ name: "show", rawName: "v-show", value: _vm.currentView === 'date', expression: "currentView === 'date'" }], class: _vm.iconBtnCls('prev'), on: { "click": function click($event) {
-        _vm.changeMonth(-1);
+        return _vm.changeMonth(-1);
       } } }, [_c('Icon', { attrs: { "type": "ios-arrow-back" } })], 1) : _vm._e(), _vm._v(" "), _c('date-panel-label', { attrs: { "date-panel-label": _vm.datePanelLabel, "current-view": _vm.pickerTable.split('-').shift(), "date-prefix-cls": _vm.datePrefixCls } }), _vm._v(" "), _c('span', { class: _vm.iconBtnCls('next', '-double'), on: { "click": function click($event) {
-        _vm.changeYear(+1);
+        return _vm.changeYear(+1);
       } } }, [_c('Icon', { attrs: { "type": "ios-arrow-forward" } })], 1), _vm._v(" "), _vm.pickerTable === 'date-table' ? _c('span', { directives: [{ name: "show", rawName: "v-show", value: _vm.currentView === 'date', expression: "currentView === 'date'" }], class: _vm.iconBtnCls('next'), on: { "click": function click($event) {
-        _vm.changeMonth(+1);
+        return _vm.changeMonth(+1);
       } } }, [_c('Icon', { attrs: { "type": "ios-arrow-forward" } })], 1) : _vm._e()], 1), _vm._v(" "), _c('div', { class: [_vm.prefixCls + '-content'] }, [_vm.currentView !== 'time' ? _c(_vm.pickerTable, { ref: "pickerTable", tag: "component", attrs: { "table-date": _vm.panelDate, "show-week-numbers": _vm.showWeekNumbers, "value": _vm.dates, "selection-mode": _vm.selectionMode, "disabled-date": _vm.disabledDate, "focused-date": _vm.focusedDate }, on: { "on-pick": _vm.panelPickerHandlers, "on-pick-click": _vm.handlePickClick } }) : _vm._e()], 1), _vm._v(" "), _c('div', { directives: [{ name: "show", rawName: "v-show", value: _vm.isTime, expression: "isTime" }], class: [_vm.prefixCls + '-content'] }, [_vm.currentView === 'time' ? _c('time-picker', _vm._b({ ref: "timePicker", attrs: { "value": _vm.dates, "format": _vm.format, "time-disabled": _vm.timeDisabled, "disabled-date": _vm.disabledDate, "focused-date": _vm.focusedDate }, on: { "on-pick": _vm.handlePick, "on-pick-click": _vm.handlePickClick, "on-pick-clear": _vm.handlePickClear, "on-pick-success": _vm.handlePickSuccess, "on-pick-toggle-time": _vm.handleToggleTime } }, 'time-picker', _vm.timePickerOptions, false)) : _vm._e()], 1), _vm._v(" "), _vm.confirm ? _c('Confirm', { attrs: { "show-time": _vm.showTime, "is-time": _vm.isTime }, on: { "on-pick-toggle-time": _vm.handleToggleTime, "on-pick-clear": _vm.handlePickClear, "on-pick-success": _vm.handlePickSuccess } }) : _vm._e()], 1)]);
 };
 var staticRenderFns = [];
@@ -31653,24 +31721,24 @@ var render = function render() {
         $event.preventDefault();
       } } }, [_vm.shortcuts.length ? _c('div', { class: [_vm.prefixCls + '-sidebar'] }, _vm._l(_vm.shortcuts, function (shortcut) {
     return _c('div', { class: [_vm.prefixCls + '-shortcut'], on: { "click": function click($event) {
-          _vm.handleShortcutClick(shortcut);
+          return _vm.handleShortcutClick(shortcut);
         } } }, [_vm._v(_vm._s(shortcut.text))]);
-  })) : _vm._e(), _vm._v(" "), _c('div', { class: _vm.panelBodyClasses }, [_c('div', { directives: [{ name: "show", rawName: "v-show", value: !_vm.isTime, expression: "!isTime" }], class: [_vm.prefixCls + '-content', _vm.prefixCls + '-content-left'] }, [_c('div', { directives: [{ name: "show", rawName: "v-show", value: _vm.currentView !== 'time', expression: "currentView !== 'time'" }], class: [_vm.datePrefixCls + '-header'] }, [_c('span', { class: _vm.iconBtnCls('prev', '-double'), on: { "click": function click($event) {
-        _vm.prevYear('left');
+  }), 0) : _vm._e(), _vm._v(" "), _c('div', { class: _vm.panelBodyClasses }, [_c('div', { directives: [{ name: "show", rawName: "v-show", value: !_vm.isTime, expression: "!isTime" }], class: [_vm.prefixCls + '-content', _vm.prefixCls + '-content-left'] }, [_c('div', { directives: [{ name: "show", rawName: "v-show", value: _vm.currentView !== 'time', expression: "currentView !== 'time'" }], class: [_vm.datePrefixCls + '-header'] }, [_c('span', { class: _vm.iconBtnCls('prev', '-double'), on: { "click": function click($event) {
+        return _vm.prevYear('left');
       } } }, [_c('Icon', { attrs: { "type": "ios-arrow-back" } })], 1), _vm._v(" "), _vm.leftPickerTable === 'date-table' ? _c('span', { directives: [{ name: "show", rawName: "v-show", value: _vm.currentView === 'date', expression: "currentView === 'date'" }], class: _vm.iconBtnCls('prev'), on: { "click": function click($event) {
-        _vm.prevMonth('left');
+        return _vm.prevMonth('left');
       } } }, [_c('Icon', { attrs: { "type": "ios-arrow-back" } })], 1) : _vm._e(), _vm._v(" "), _c('date-panel-label', { attrs: { "date-panel-label": _vm.leftDatePanelLabel, "current-view": _vm.leftDatePanelView, "date-prefix-cls": _vm.datePrefixCls } }), _vm._v(" "), _vm.splitPanels || _vm.leftPickerTable !== 'date-table' ? _c('span', { class: _vm.iconBtnCls('next', '-double'), on: { "click": function click($event) {
-        _vm.nextYear('left');
+        return _vm.nextYear('left');
       } } }, [_c('Icon', { attrs: { "type": "ios-arrow-forward" } })], 1) : _vm._e(), _vm._v(" "), _vm.splitPanels && _vm.leftPickerTable === 'date-table' ? _c('span', { directives: [{ name: "show", rawName: "v-show", value: _vm.currentView === 'date', expression: "currentView === 'date'" }], class: _vm.iconBtnCls('next'), on: { "click": function click($event) {
-        _vm.nextMonth('left');
+        return _vm.nextMonth('left');
       } } }, [_c('Icon', { attrs: { "type": "ios-arrow-forward" } })], 1) : _vm._e()], 1), _vm._v(" "), _vm.currentView !== 'time' ? _c(_vm.leftPickerTable, { ref: "leftYearTable", tag: "component", attrs: { "table-date": _vm.leftPanelDate, "selection-mode": "range", "disabled-date": _vm.disabledDate, "range-state": _vm.rangeState, "show-week-numbers": _vm.showWeekNumbers, "value": _vm.preSelecting.left ? [_vm.dates[0]] : _vm.dates, "focused-date": _vm.focusedDate }, on: { "on-change-range": _vm.handleChangeRange, "on-pick": _vm.panelPickerHandlers.left, "on-pick-click": _vm.handlePickClick } }) : _vm._e()], 1), _vm._v(" "), _c('div', { directives: [{ name: "show", rawName: "v-show", value: !_vm.isTime, expression: "!isTime" }], class: [_vm.prefixCls + '-content', _vm.prefixCls + '-content-right'] }, [_c('div', { directives: [{ name: "show", rawName: "v-show", value: _vm.currentView !== 'time', expression: "currentView !== 'time'" }], class: [_vm.datePrefixCls + '-header'] }, [_vm.splitPanels || _vm.rightPickerTable !== 'date-table' ? _c('span', { class: _vm.iconBtnCls('prev', '-double'), on: { "click": function click($event) {
-        _vm.prevYear('right');
+        return _vm.prevYear('right');
       } } }, [_c('Icon', { attrs: { "type": "ios-arrow-back" } })], 1) : _vm._e(), _vm._v(" "), _vm.splitPanels && _vm.rightPickerTable === 'date-table' ? _c('span', { directives: [{ name: "show", rawName: "v-show", value: _vm.currentView === 'date', expression: "currentView === 'date'" }], class: _vm.iconBtnCls('prev'), on: { "click": function click($event) {
-        _vm.prevMonth('right');
+        return _vm.prevMonth('right');
       } } }, [_c('Icon', { attrs: { "type": "ios-arrow-back" } })], 1) : _vm._e(), _vm._v(" "), _c('date-panel-label', { attrs: { "date-panel-label": _vm.rightDatePanelLabel, "current-view": _vm.rightDatePanelView, "date-prefix-cls": _vm.datePrefixCls } }), _vm._v(" "), _c('span', { class: _vm.iconBtnCls('next', '-double'), on: { "click": function click($event) {
-        _vm.nextYear('right');
+        return _vm.nextYear('right');
       } } }, [_c('Icon', { attrs: { "type": "ios-arrow-forward" } })], 1), _vm._v(" "), _vm.rightPickerTable === 'date-table' ? _c('span', { directives: [{ name: "show", rawName: "v-show", value: _vm.currentView === 'date', expression: "currentView === 'date'" }], class: _vm.iconBtnCls('next'), on: { "click": function click($event) {
-        _vm.nextMonth('right');
+        return _vm.nextMonth('right');
       } } }, [_c('Icon', { attrs: { "type": "ios-arrow-forward" } })], 1) : _vm._e()], 1), _vm._v(" "), _vm.currentView !== 'time' ? _c(_vm.rightPickerTable, { ref: "rightYearTable", tag: "component", attrs: { "table-date": _vm.rightPanelDate, "selection-mode": "range", "range-state": _vm.rangeState, "disabled-date": _vm.disabledDate, "show-week-numbers": _vm.showWeekNumbers, "value": _vm.preSelecting.right ? [_vm.dates[_vm.dates.length - 1]] : _vm.dates, "focused-date": _vm.focusedDate }, on: { "on-change-range": _vm.handleChangeRange, "on-pick": _vm.panelPickerHandlers.right, "on-pick-click": _vm.handlePickClick } }) : _vm._e()], 1), _vm._v(" "), _c('div', { directives: [{ name: "show", rawName: "v-show", value: _vm.isTime, expression: "isTime" }], class: [_vm.prefixCls + '-content'] }, [_vm.currentView === 'time' ? _c('time-picker', _vm._b({ ref: "timePicker", attrs: { "value": _vm.dates, "format": _vm.format, "time-disabled": _vm.timeDisabled }, on: { "on-pick": _vm.handleRangePick, "on-pick-click": _vm.handlePickClick, "on-pick-clear": _vm.handlePickClear, "on-pick-success": _vm.handlePickSuccess, "on-pick-toggle-time": _vm.handleToggleTime } }, 'time-picker', _vm.timePickerOptions, false)) : _vm._e()], 1), _vm._v(" "), _vm.confirm ? _c('Confirm', { attrs: { "show-time": _vm.showTime, "is-time": _vm.isTime, "time-disabled": _vm.timeDisabled }, on: { "on-pick-toggle-time": _vm.handleToggleTime, "on-pick-clear": _vm.handlePickClear, "on-pick-success": _vm.handlePickSuccess } }) : _vm._e()], 1)]);
 };
 var staticRenderFns = [];
@@ -34971,7 +35039,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 var render = function render() {
-  var _vm = this;var _h = _vm.$createElement;var _c = _vm._self._c || _h;return _c('div', { class: _vm.classes }, [_c('div', { class: _vm.barConClasses }, _vm._m(0))]);
+  var _vm = this;var _h = _vm.$createElement;var _c = _vm._self._c || _h;return _c('div', { class: _vm.classes }, [_c('div', { class: _vm.barConClasses }, _vm._m(0), 0)]);
 };
 var staticRenderFns = [function () {
   var _vm = this;var _h = _vm.$createElement;var _c = _vm._self._c || _h;return _vm._l(8, function (i) {
@@ -35574,15 +35642,15 @@ var render = function render() {
   var _vm = this;var _h = _vm.$createElement;var _c = _vm._self._c || _h;return _vm.to ? _c('a', { class: _vm.classes, style: _vm.itemStyle, attrs: { "href": _vm.linkUrl, "target": _vm.target }, on: { "click": [function ($event) {
         if ($event.ctrlKey || $event.shiftKey || $event.altKey || $event.metaKey) {
           return null;
-        }_vm.handleClickItem($event, false);
+        }return _vm.handleClickItem($event, false);
       }, function ($event) {
         if (!$event.ctrlKey) {
           return null;
-        }_vm.handleClickItem($event, true);
+        }return _vm.handleClickItem($event, true);
       }, function ($event) {
         if (!$event.metaKey) {
           return null;
-        }_vm.handleClickItem($event, true);
+        }return _vm.handleClickItem($event, true);
       }] } }, [_vm._t("default")], 2) : _c('li', { class: _vm.classes, style: _vm.itemStyle, on: { "click": function click($event) {
         $event.stopPropagation();return _vm.handleClickItem($event);
       } } }, [_vm._t("default")], 2);
@@ -35881,7 +35949,7 @@ Object.defineProperty(exports, "__esModule", {
 var render = function render() {
   var _vm = this;var _h = _vm.$createElement;var _c = _vm._self._c || _h;return _c('div', { class: _vm.classes, style: _vm.wrapStyles }, _vm._l(_vm.notices, function (notice) {
     return _c('Notice', { key: notice.name, attrs: { "prefix-cls": _vm.prefixCls, "styles": notice.styles, "type": notice.type, "content": notice.content, "duration": notice.duration, "render": notice.render, "has-title": notice.hasTitle, "withIcon": notice.withIcon, "closable": notice.closable, "name": notice.name, "transition-name": notice.transitionName, "on-close": notice.onClose } });
-  }));
+  }), 1);
 };
 var staticRenderFns = [];
 exports.render = render;
@@ -36578,8 +36646,8 @@ var render = function render() {
         _vm.currentPageSize = $$v;
       }, expression: "currentPageSize" } }, _vm._l(_vm.pageSizeOpts, function (item) {
     return _c('i-option', { key: item, staticStyle: { "text-align": "center" }, attrs: { "value": item } }, [_vm._v(_vm._s(item) + " " + _vm._s(_vm.t('i.page.page')))]);
-  }))], 1) : _vm._e(), _vm._v(" "), _vm.showElevator ? _c('div', { class: _vm.ElevatorClasses }, [_vm._v("\n        " + _vm._s(_vm.t('i.page.goto')) + "\n        "), _c('input', { attrs: { "type": "text", "autocomplete": "off", "spellcheck": "false" }, domProps: { "value": _vm._current }, on: { "keyup": function keyup($event) {
-        if (!('button' in $event) && _vm._k($event.keyCode, "enter", 13, $event.key, "Enter")) {
+  }), 1)], 1) : _vm._e(), _vm._v(" "), _vm.showElevator ? _c('div', { class: _vm.ElevatorClasses }, [_vm._v("\n        " + _vm._s(_vm.t('i.page.goto')) + "\n        "), _c('input', { attrs: { "type": "text", "autocomplete": "off", "spellcheck": "false" }, domProps: { "value": _vm._current }, on: { "keyup": function keyup($event) {
+        if (!$event.type.indexOf('key') && _vm._k($event.keyCode, "enter", 13, $event.key, "Enter")) {
           return null;
         }return _vm.changePage($event);
       } } }), _vm._v("\n        " + _vm._s(_vm.t('i.page.p')) + "\n    ")]) : _vm._e()]) : _vm._e();
@@ -36600,21 +36668,21 @@ Object.defineProperty(exports, "__esModule", {
 });
 var render = function render() {
   var _vm = this;var _h = _vm.$createElement;var _c = _vm._self._c || _h;return _vm.simple ? _c('ul', { class: _vm.simpleWrapClasses, style: _vm.styles }, [_c('li', { class: _vm.prevClasses, attrs: { "title": _vm.t('i.page.prev') }, on: { "click": _vm.prev } }, [_vm._m(0)]), _vm._v(" "), _c('div', { class: _vm.simplePagerClasses, attrs: { "title": _vm.currentPage + '/' + _vm.allPages } }, [_c('input', { attrs: { "type": "text", "autocomplete": "off", "spellcheck": "false" }, domProps: { "value": _vm.currentPage }, on: { "keydown": _vm.keyDown, "keyup": _vm.keyUp, "change": _vm.keyUp } }), _vm._v(" "), _c('span', [_vm._v("/")]), _vm._v("\n        " + _vm._s(_vm.allPages) + "\n    ")]), _vm._v(" "), _c('li', { class: _vm.nextClasses, attrs: { "title": _vm.t('i.page.next') }, on: { "click": _vm.next } }, [_vm._m(1)])]) : _c('ul', { class: _vm.wrapClasses, style: _vm.styles }, [_vm.showTotal ? _c('span', { class: [_vm.prefixCls + '-total'] }, [_vm._t("default", [_vm._v(_vm._s(_vm.t('i.page.total')) + " " + _vm._s(_vm.total) + " "), _vm.total <= 1 ? [_vm._v(_vm._s(_vm.t('i.page.item')))] : [_vm._v(_vm._s(_vm.t('i.page.items')))]])], 2) : _vm._e(), _vm._v(" "), _c('li', { class: _vm.prevClasses, attrs: { "title": _vm.t('i.page.prev') }, on: { "click": _vm.prev } }, [_c('a', [_vm.prevText !== '' ? [_vm._v(_vm._s(_vm.prevText))] : _c('i', { staticClass: "ivu-icon ivu-icon-ios-arrow-back" })], 2)]), _vm._v(" "), _c('li', { class: _vm.firstPageClasses, attrs: { "title": "1" }, on: { "click": function click($event) {
-        _vm.changePage(1);
+        return _vm.changePage(1);
       } } }, [_c('a', [_vm._v("1")])]), _vm._v(" "), _vm.currentPage > 5 ? _c('li', { class: [_vm.prefixCls + '-item-jump-prev'], attrs: { "title": _vm.t('i.page.prev5') }, on: { "click": _vm.fastPrev } }, [_vm._m(2)]) : _vm._e(), _vm._v(" "), _vm.currentPage === 5 ? _c('li', { class: [_vm.prefixCls + '-item'], attrs: { "title": _vm.currentPage - 3 }, on: { "click": function click($event) {
-        _vm.changePage(_vm.currentPage - 3);
+        return _vm.changePage(_vm.currentPage - 3);
       } } }, [_c('a', [_vm._v(_vm._s(_vm.currentPage - 3))])]) : _vm._e(), _vm._v(" "), _vm.currentPage - 2 > 1 ? _c('li', { class: [_vm.prefixCls + '-item'], attrs: { "title": _vm.currentPage - 2 }, on: { "click": function click($event) {
-        _vm.changePage(_vm.currentPage - 2);
+        return _vm.changePage(_vm.currentPage - 2);
       } } }, [_c('a', [_vm._v(_vm._s(_vm.currentPage - 2))])]) : _vm._e(), _vm._v(" "), _vm.currentPage - 1 > 1 ? _c('li', { class: [_vm.prefixCls + '-item'], attrs: { "title": _vm.currentPage - 1 }, on: { "click": function click($event) {
-        _vm.changePage(_vm.currentPage - 1);
+        return _vm.changePage(_vm.currentPage - 1);
       } } }, [_c('a', [_vm._v(_vm._s(_vm.currentPage - 1))])]) : _vm._e(), _vm._v(" "), _vm.currentPage != 1 && _vm.currentPage != _vm.allPages ? _c('li', { class: [_vm.prefixCls + '-item', _vm.prefixCls + '-item-active'], attrs: { "title": _vm.currentPage } }, [_c('a', [_vm._v(_vm._s(_vm.currentPage))])]) : _vm._e(), _vm._v(" "), _vm.currentPage + 1 < _vm.allPages ? _c('li', { class: [_vm.prefixCls + '-item'], attrs: { "title": _vm.currentPage + 1 }, on: { "click": function click($event) {
-        _vm.changePage(_vm.currentPage + 1);
+        return _vm.changePage(_vm.currentPage + 1);
       } } }, [_c('a', [_vm._v(_vm._s(_vm.currentPage + 1))])]) : _vm._e(), _vm._v(" "), _vm.currentPage + 2 < _vm.allPages ? _c('li', { class: [_vm.prefixCls + '-item'], attrs: { "title": _vm.currentPage + 2 }, on: { "click": function click($event) {
-        _vm.changePage(_vm.currentPage + 2);
+        return _vm.changePage(_vm.currentPage + 2);
       } } }, [_c('a', [_vm._v(_vm._s(_vm.currentPage + 2))])]) : _vm._e(), _vm._v(" "), _vm.allPages - _vm.currentPage === 4 ? _c('li', { class: [_vm.prefixCls + '-item'], attrs: { "title": _vm.currentPage + 3 }, on: { "click": function click($event) {
-        _vm.changePage(_vm.currentPage + 3);
+        return _vm.changePage(_vm.currentPage + 3);
       } } }, [_c('a', [_vm._v(_vm._s(_vm.currentPage + 3))])]) : _vm._e(), _vm._v(" "), _vm.allPages - _vm.currentPage >= 5 ? _c('li', { class: [_vm.prefixCls + '-item-jump-next'], attrs: { "title": _vm.t('i.page.next5') }, on: { "click": _vm.fastNext } }, [_vm._m(3)]) : _vm._e(), _vm._v(" "), _vm.allPages > 1 ? _c('li', { class: _vm.lastPageClasses, attrs: { "title": _vm.allPages }, on: { "click": function click($event) {
-        _vm.changePage(_vm.allPages);
+        return _vm.changePage(_vm.allPages);
       } } }, [_c('a', [_vm._v(_vm._s(_vm.allPages))])]) : _vm._e(), _vm._v(" "), _c('li', { class: _vm.nextClasses, attrs: { "title": _vm.t('i.page.next') }, on: { "click": _vm.next } }, [_c('a', [_vm.nextText !== '' ? [_vm._v(_vm._s(_vm.nextText))] : _c('i', { staticClass: "ivu-icon ivu-icon-ios-arrow-forward" })], 2)]), _vm._v(" "), _c('Options', { attrs: { "show-sizer": _vm.showSizer, "page-size": _vm.currentPageSize, "page-size-opts": _vm.pageSizeOpts, "placement": _vm.placement, "transfer": _vm.transfer, "show-elevator": _vm.showElevator, "_current": _vm.currentPage, "current": _vm.currentPage, "all-pages": _vm.allPages, "is-small": _vm.isSmall }, on: { "on-size": _vm.onSize, "on-page": _vm.onPage } })], 1);
 };
 var staticRenderFns = [function () {
@@ -36660,9 +36728,9 @@ Object.defineProperty(exports, "__esModule", {
 });
 var render = function render() {
   var _vm = this;var _h = _vm.$createElement;var _c = _vm._self._c || _h;return _c('div', { directives: [{ name: "click-outside", rawName: "v-click-outside", value: _vm.handleClose, expression: "handleClose" }], class: _vm.classes, on: { "mouseenter": _vm.handleMouseenter, "mouseleave": _vm.handleMouseleave } }, [_c('div', { ref: "reference", class: [_vm.prefixCls + '-rel'], on: { "click": _vm.handleClick, "mousedown": function mousedown($event) {
-        _vm.handleFocus(false);
+        return _vm.handleFocus(false);
       }, "mouseup": function mouseup($event) {
-        _vm.handleBlur(false);
+        return _vm.handleBlur(false);
       } } }, [_vm._t("default")], 2), _vm._v(" "), _c('transition', { attrs: { "name": "fade" } }, [_c('div', { directives: [{ name: "show", rawName: "v-show", value: _vm.visible, expression: "visible" }, { name: "transfer-dom", rawName: "v-transfer-dom" }], ref: "popper", class: _vm.popperClasses, style: _vm.styles, attrs: { "data-transfer": _vm.transfer }, on: { "click": _vm.handleTransferClick, "mouseenter": _vm.handleMouseenter, "mouseleave": _vm.handleMouseleave } }, [_c('div', { class: [_vm.prefixCls + '-content'] }, [_c('div', { class: [_vm.prefixCls + '-arrow'] }), _vm._v(" "), _vm.confirm ? _c('div', { class: [_vm.prefixCls + '-inner'] }, [_c('div', { class: [_vm.prefixCls + '-body'] }, [_c('i', { staticClass: "ivu-icon ivu-icon-ios-help-circle" }), _vm._v(" "), _c('div', { class: [_vm.prefixCls + '-body-message'] }, [_vm._t("title", [_vm._v(_vm._s(_vm.title))])], 2)]), _vm._v(" "), _c('div', { class: [_vm.prefixCls + '-footer'] }, [_c('i-button', { attrs: { "type": "text", "size": "small" }, nativeOn: { "click": function click($event) {
         return _vm.cancel($event);
       } } }, [_vm._v(_vm._s(_vm.localeCancelText))]), _vm._v(" "), _c('i-button', { attrs: { "type": "primary", "size": "small" }, nativeOn: { "click": function click($event) {
@@ -36916,9 +36984,9 @@ Object.defineProperty(exports, "__esModule", {
 var render = function render() {
   var _vm = this;var _h = _vm.$createElement;var _c = _vm._self._c || _h;return _c('div', { class: _vm.classes, on: { "mouseleave": _vm.handleMouseleave } }, [_c('input', { attrs: { "type": "hidden", "name": _vm.name }, domProps: { "value": _vm.currentValue } }), _vm._v(" "), _vm._l(_vm.count, function (item) {
     return _c('div', { key: item, class: _vm.starCls(item), on: { "mousemove": function mousemove($event) {
-          _vm.handleMousemove(item, $event);
+          return _vm.handleMousemove(item, $event);
         }, "click": function click($event) {
-          _vm.handleClick(item);
+          return _vm.handleClick(item);
         } } }, [!_vm.showCharacter ? [_c('span', { class: [_vm.prefixCls + '-star-content'], attrs: { "type": "half" } })] : [_c('span', { class: [_vm.prefixCls + '-star-first'], attrs: { "type": "half" } }, [_vm.character !== '' ? [_vm._v(_vm._s(_vm.character))] : _c('i', { class: _vm.iconClasses, attrs: { "type": "half" } })], 2), _vm._v(" "), _c('span', { class: [_vm.prefixCls + '-star-second'] }, [_vm.character !== '' ? [_vm._v(_vm._s(_vm.character))] : _c('i', { class: _vm.iconClasses })], 2)]], 2);
   }), _vm._v(" "), _vm.showText ? _c('div', { directives: [{ name: "show", rawName: "v-show", value: _vm.currentValue > 0, expression: "currentValue > 0" }], class: [_vm.prefixCls + '-text'] }, [_vm._t("default", [_c('span', [_vm._v(_vm._s(_vm.currentValue))]), _vm._v(" "), _vm.currentValue <= 1 ? _c('span', [_vm._v(_vm._s(_vm.t('i.rate.star')))]) : _c('span', [_vm._v(_vm._s(_vm.t('i.rate.stars')))])])], 2) : _vm._e()], 2);
 };
@@ -38407,61 +38475,61 @@ var render = function render() {
           return null;
         }return _vm.sliderClick($event);
       } } }), _vm._v(" "), _c('div', { class: [_vm.prefixCls + '-button-wrap'], style: { left: _vm.minPosition + '%' }, on: { "touchstart": function touchstart($event) {
-        _vm.onPointerDown($event, 'min');
+        return _vm.onPointerDown($event, 'min');
       }, "mousedown": function mousedown($event) {
-        _vm.onPointerDown($event, 'min');
+        return _vm.onPointerDown($event, 'min');
       } } }, [_c('Tooltip', { ref: "minTooltip", attrs: { "controlled": _vm.pointerDown === 'min', "placement": "top", "content": _vm.tipFormat(_vm.exportValue[0]), "disabled": _vm.tipDisabled, "always": _vm.showTip === 'always' } }, [_c('div', { class: _vm.minButtonClasses, attrs: { "tabindex": "0" }, on: { "focus": function focus($event) {
-        _vm.handleFocus('min');
+        return _vm.handleFocus('min');
       }, "blur": function blur($event) {
-        _vm.handleBlur('min');
+        return _vm.handleBlur('min');
       }, "keydown": [function ($event) {
-        if (!('button' in $event) && _vm._k($event.keyCode, "left", 37, $event.key, ["Left", "ArrowLeft"])) {
+        if (!$event.type.indexOf('key') && _vm._k($event.keyCode, "left", 37, $event.key, ["Left", "ArrowLeft"])) {
           return null;
         }if ('button' in $event && $event.button !== 0) {
           return null;
-        }_vm.onKeyLeft($event, 'min');
+        }return _vm.onKeyLeft($event, 'min');
       }, function ($event) {
-        if (!('button' in $event) && _vm._k($event.keyCode, "down", 40, $event.key, ["Down", "ArrowDown"])) {
+        if (!$event.type.indexOf('key') && _vm._k($event.keyCode, "down", 40, $event.key, ["Down", "ArrowDown"])) {
           return null;
-        }_vm.onKeyLeft($event, 'min');
+        }return _vm.onKeyLeft($event, 'min');
       }, function ($event) {
-        if (!('button' in $event) && _vm._k($event.keyCode, "right", 39, $event.key, ["Right", "ArrowRight"])) {
+        if (!$event.type.indexOf('key') && _vm._k($event.keyCode, "right", 39, $event.key, ["Right", "ArrowRight"])) {
           return null;
         }if ('button' in $event && $event.button !== 2) {
           return null;
-        }_vm.onKeyRight($event, 'min');
+        }return _vm.onKeyRight($event, 'min');
       }, function ($event) {
-        if (!('button' in $event) && _vm._k($event.keyCode, "up", 38, $event.key, ["Up", "ArrowUp"])) {
+        if (!$event.type.indexOf('key') && _vm._k($event.keyCode, "up", 38, $event.key, ["Up", "ArrowUp"])) {
           return null;
-        }_vm.onKeyRight($event, 'min');
+        }return _vm.onKeyRight($event, 'min');
       }] } })])], 1), _vm._v(" "), _vm.range ? _c('div', { class: [_vm.prefixCls + '-button-wrap'], style: { left: _vm.maxPosition + '%' }, on: { "touchstart": function touchstart($event) {
-        _vm.onPointerDown($event, 'max');
+        return _vm.onPointerDown($event, 'max');
       }, "mousedown": function mousedown($event) {
-        _vm.onPointerDown($event, 'max');
+        return _vm.onPointerDown($event, 'max');
       } } }, [_c('Tooltip', { ref: "maxTooltip", attrs: { "controlled": _vm.pointerDown === 'max', "placement": "top", "content": _vm.tipFormat(_vm.exportValue[1]), "disabled": _vm.tipDisabled, "always": _vm.showTip === 'always' } }, [_c('div', { class: _vm.maxButtonClasses, attrs: { "tabindex": "0" }, on: { "focus": function focus($event) {
-        _vm.handleFocus('max');
+        return _vm.handleFocus('max');
       }, "blur": function blur($event) {
-        _vm.handleBlur('max');
+        return _vm.handleBlur('max');
       }, "keydown": [function ($event) {
-        if (!('button' in $event) && _vm._k($event.keyCode, "left", 37, $event.key, ["Left", "ArrowLeft"])) {
+        if (!$event.type.indexOf('key') && _vm._k($event.keyCode, "left", 37, $event.key, ["Left", "ArrowLeft"])) {
           return null;
         }if ('button' in $event && $event.button !== 0) {
           return null;
-        }_vm.onKeyLeft($event, 'max');
+        }return _vm.onKeyLeft($event, 'max');
       }, function ($event) {
-        if (!('button' in $event) && _vm._k($event.keyCode, "down", 40, $event.key, ["Down", "ArrowDown"])) {
+        if (!$event.type.indexOf('key') && _vm._k($event.keyCode, "down", 40, $event.key, ["Down", "ArrowDown"])) {
           return null;
-        }_vm.onKeyLeft($event, 'max');
+        }return _vm.onKeyLeft($event, 'max');
       }, function ($event) {
-        if (!('button' in $event) && _vm._k($event.keyCode, "right", 39, $event.key, ["Right", "ArrowRight"])) {
+        if (!$event.type.indexOf('key') && _vm._k($event.keyCode, "right", 39, $event.key, ["Right", "ArrowRight"])) {
           return null;
         }if ('button' in $event && $event.button !== 2) {
           return null;
-        }_vm.onKeyRight($event, 'max');
+        }return _vm.onKeyRight($event, 'max');
       }, function ($event) {
-        if (!('button' in $event) && _vm._k($event.keyCode, "up", 38, $event.key, ["Up", "ArrowUp"])) {
+        if (!$event.type.indexOf('key') && _vm._k($event.keyCode, "up", 38, $event.key, ["Up", "ArrowUp"])) {
           return null;
-        }_vm.onKeyRight($event, 'max');
+        }return _vm.onKeyRight($event, 'max');
       }] } })])], 1) : _vm._e()], 2)], 1);
 };
 var staticRenderFns = [];
@@ -38833,7 +38901,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 var render = function render() {
   var _vm = this;var _h = _vm.$createElement;var _c = _vm._self._c || _h;return _c('span', { class: _vm.wrapClasses, attrs: { "tabindex": "0" }, on: { "click": _vm.toggle, "keydown": function keydown($event) {
-        if (!('button' in $event) && _vm._k($event.keyCode, "space", 32, $event.key, " ")) {
+        if (!$event.type.indexOf('key') && _vm._k($event.keyCode, "space", 32, $event.key, [" ", "Spacebar"])) {
           return null;
         }return _vm.toggle($event);
       } } }, [_c('input', { attrs: { "type": "hidden", "name": _vm.name }, domProps: { "value": _vm.currentValue } }), _vm._v(" "), _c('span', { class: _vm.innerClasses }, [_vm.currentValue === _vm.trueValue ? _vm._t("open") : _vm._e(), _vm._v(" "), _vm.currentValue === _vm.falseValue ? _vm._t("close") : _vm._e()], 2)]);
@@ -39004,7 +39072,7 @@ var render = function render() {
             _vm.$set(_vm.getColumn(rowIndex, index), "_filterChecked", $$v);
           }, expression: "getColumn(rowIndex, index)._filterChecked" } }, _vm._l(column.filters, function (item, index) {
         return _c('checkbox', { key: index, attrs: { "label": item.value } }, [_vm._v(_vm._s(item.label))]);
-      }))], 1), _vm._v(" "), _c('div', { class: [_vm.prefixCls + '-filter-footer'] }, [_c('i-button', { attrs: { "type": "text", "size": "small", "disabled": !_vm.getColumn(rowIndex, index)._filterChecked.length }, nativeOn: { "click": function click($event) {
+      }), 1)], 1), _vm._v(" "), _c('div', { class: [_vm.prefixCls + '-filter-footer'] }, [_c('i-button', { attrs: { "type": "text", "size": "small", "disabled": !_vm.getColumn(rowIndex, index)._filterChecked.length }, nativeOn: { "click": function click($event) {
             _vm.handleFilter(_vm.getColumn(rowIndex, index)._index);
           } } }, [_vm._v(_vm._s(_vm.t('i.table.confirmFilter')))]), _vm._v(" "), _c('i-button', { attrs: { "type": "text", "size": "small" }, nativeOn: { "click": function click($event) {
             _vm.handleReset(_vm.getColumn(rowIndex, index)._index);
@@ -39017,7 +39085,7 @@ var render = function render() {
       })], 2)])]) : _vm._e()]], 2)]);
       var _obj;
     }), _vm._v(" "), _vm.$parent.showVerticalScrollBar && rowIndex === 0 ? _c('th', { class: _vm.scrollBarCellClass(), attrs: { "rowspan": _vm.headRows.length } }) : _vm._e()], 2);
-  }))]);
+  }), 0)]);
 };
 var staticRenderFns = [];
 exports.render = render;
@@ -39113,11 +39181,11 @@ Object.defineProperty(exports, "__esModule", {
 });
 var render = function render() {
   var _vm = this;var _h = _vm.$createElement;var _c = _vm._self._c || _h;return _vm.draggable ? _c('tr', { class: _vm.rowClasses(_vm.row._index), attrs: { "draggable": _vm.draggable }, on: { "dragstart": function dragstart($event) {
-        _vm.onDrag($event, _vm.row._index);
+        return _vm.onDrag($event, _vm.row._index);
       }, "drop": function drop($event) {
-        _vm.onDrop($event, _vm.row._index);
+        return _vm.onDrop($event, _vm.row._index);
       }, "dragover": function dragover($event) {
-        _vm.allowDrop($event);
+        return _vm.allowDrop($event);
       } } }, [_vm._t("default")], 2) : _c('tr', { class: _vm.rowClasses(_vm.row._index) }, [_vm._t("default")], 2);
 };
 var staticRenderFns = [];
@@ -39235,18 +39303,18 @@ Object.defineProperty(exports, "__esModule", {
 var render = function render() {
   var _vm = this;var _h = _vm.$createElement;var _c = _vm._self._c || _h;return _c('table', { style: _vm.styleObject, attrs: { "cellspacing": "0", "cellpadding": "0", "border": "0" } }, [_c('colgroup', _vm._l(_vm.columns, function (column, index) {
     return _c('col', { attrs: { "width": _vm.setCellWidth(column) } });
-  })), _vm._v(" "), _c('tbody', { class: [_vm.prefixCls + '-tbody'] }, [_vm._l(_vm.data, function (row, index) {
+  }), 0), _vm._v(" "), _c('tbody', { class: [_vm.prefixCls + '-tbody'] }, [_vm._l(_vm.data, function (row, index) {
     return [_c('table-tr', { key: row._rowKey, attrs: { "draggable": _vm.draggable, "row": row, "prefix-cls": _vm.prefixCls }, nativeOn: { "mouseenter": function mouseenter($event) {
-          $event.stopPropagation();_vm.handleMouseIn(row._index);
+          $event.stopPropagation();return _vm.handleMouseIn(row._index);
         }, "mouseleave": function mouseleave($event) {
-          $event.stopPropagation();_vm.handleMouseOut(row._index);
+          $event.stopPropagation();return _vm.handleMouseOut(row._index);
         }, "click": function click($event) {
-          _vm.clickCurrentRow(row._index);
+          return _vm.clickCurrentRow(row._index);
         }, "dblclick": function dblclick($event) {
-          $event.stopPropagation();_vm.dblclickCurrentRow(row._index);
+          $event.stopPropagation();return _vm.dblclickCurrentRow(row._index);
         } } }, _vm._l(_vm.columns, function (column) {
       return _c('td', { class: _vm.alignCls(column, row) }, [_c('table-cell', { key: column._columnKey, attrs: { "fixed": _vm.fixed, "prefix-cls": _vm.prefixCls, "row": row, "column": column, "natural-index": index, "index": row._index, "checked": _vm.rowChecked(row._index), "disabled": _vm.rowDisabled(row._index), "expanded": _vm.rowExpanded(row._index) } })], 1);
-    })), _vm._v(" "), _vm.rowExpanded(row._index) ? _c('tr', { class: (_obj = {}, _obj[_vm.prefixCls + '-expanded-hidden'] = _vm.fixed, _obj) }, [_c('td', { class: _vm.prefixCls + '-expanded-cell', attrs: { "colspan": _vm.columns.length } }, [_c('Expand', { key: row._rowKey, attrs: { "row": row, "render": _vm.expandRender, "index": row._index } })], 1)]) : _vm._e()];
+    }), 0), _vm._v(" "), _vm.rowExpanded(row._index) ? _c('tr', { class: (_obj = {}, _obj[_vm.prefixCls + '-expanded-hidden'] = _vm.fixed, _obj) }, [_c('td', { class: _vm.prefixCls + '-expanded-cell', attrs: { "colspan": _vm.columns.length } }, [_c('Expand', { key: row._rowKey, attrs: { "row": row, "render": _vm.expandRender, "index": row._index } })], 1)]) : _vm._e()];
     var _obj;
   })], 2)]);
 };
@@ -39669,14 +39737,14 @@ Object.defineProperty(exports, "__esModule", {
 });
 var render = function render() {
   var _vm = this;var _h = _vm.$createElement;var _c = _vm._self._c || _h;return _c('div', { class: _vm.classes }, [_c('div', { class: [_vm.prefixCls + '-bar'] }, [_vm.showSlot ? _c('div', { class: [_vm.prefixCls + '-nav-right'] }, [_vm._t("extra")], 2) : _vm._e(), _vm._v(" "), _c('div', { ref: "navContainer", class: [_vm.prefixCls + '-nav-container'], attrs: { "tabindex": "0" }, on: { "keydown": [_vm.handleTabKeyNavigation, function ($event) {
-        if (!('button' in $event) && _vm._k($event.keyCode, "space", 32, $event.key, " ")) {
+        if (!$event.type.indexOf('key') && _vm._k($event.keyCode, "space", 32, $event.key, [" ", "Spacebar"])) {
           return null;
-        }$event.preventDefault();_vm.handleTabKeyboardSelect(false);
+        }$event.preventDefault();return _vm.handleTabKeyboardSelect(false);
       }] } }, [_c('div', { ref: "navWrap", class: [_vm.prefixCls + '-nav-wrap', _vm.scrollable ? _vm.prefixCls + '-nav-scrollable' : ''] }, [_c('span', { class: [_vm.prefixCls + '-nav-prev', _vm.scrollable ? '' : _vm.prefixCls + '-nav-scroll-disabled'], on: { "click": _vm.scrollPrev } }, [_c('Icon', { attrs: { "type": "ios-arrow-back" } })], 1), _vm._v(" "), _c('span', { class: [_vm.prefixCls + '-nav-next', _vm.scrollable ? '' : _vm.prefixCls + '-nav-scroll-disabled'], on: { "click": _vm.scrollNext } }, [_c('Icon', { attrs: { "type": "ios-arrow-forward" } })], 1), _vm._v(" "), _c('div', { ref: "navScroll", class: [_vm.prefixCls + '-nav-scroll'] }, [_c('div', { ref: "nav", staticClass: "nav-text", class: [_vm.prefixCls + '-nav'], style: _vm.navStyle }, [_c('div', { class: _vm.barClasses, style: _vm.barStyle }), _vm._v(" "), _vm._l(_vm.navList, function (item, index) {
     return _c('div', { class: _vm.tabCls(item), on: { "click": function click($event) {
-          _vm.handleChange(index);
+          return _vm.handleChange(index);
         } } }, [item.icon !== '' ? _c('Icon', { attrs: { "type": item.icon } }) : _vm._e(), _vm._v(" "), item.labelType === 'function' ? _c('Render', { attrs: { "render": item.label } }) : [_vm._v(_vm._s(item.label))], _vm._v(" "), _vm.showClose(item) ? _c('Icon', { attrs: { "type": "ios-close" }, nativeOn: { "click": function click($event) {
-          $event.stopPropagation();_vm.handleRemove(index);
+          $event.stopPropagation();return _vm.handleRemove(index);
         } } }) : _vm._e()], 2);
   })], 2)])])])]), _vm._v(" "), _c('div', { ref: "panes", class: _vm.contentClasses, style: _vm.contentStyle }, [_vm._t("default")], 2)]);
 };
@@ -40383,10 +40451,10 @@ Object.defineProperty(exports, "__esModule", {
 });
 var render = function render() {
   var _vm = this;var _h = _vm.$createElement;var _c = _vm._self._c || _h;return _c('div', { class: _vm.classes, style: _vm.listStyle }, [_c('div', { class: _vm.prefixCls + '-header' }, [_c('Checkbox', { attrs: { "value": _vm.checkedAll, "disabled": _vm.checkedAllDisabled }, on: { "on-change": _vm.toggleSelectAll } }), _vm._v(" "), _c('span', { class: _vm.prefixCls + '-header-title', on: { "click": function click($event) {
-        _vm.toggleSelectAll(!_vm.checkedAll);
+        return _vm.toggleSelectAll(!_vm.checkedAll);
       } } }, [_vm._v(_vm._s(_vm.title))]), _vm._v(" "), _c('span', { class: _vm.prefixCls + '-header-count' }, [_vm._v(_vm._s(_vm.count))])], 1), _vm._v(" "), _c('div', { class: _vm.bodyClasses }, [_vm.filterable ? _c('div', { class: _vm.prefixCls + '-body-search-wrapper' }, [_c('Search', { attrs: { "prefix-cls": _vm.prefixCls + '-search', "query": _vm.query, "placeholder": _vm.filterPlaceholder }, on: { "on-query-clear": _vm.handleQueryClear, "on-query-change": _vm.handleQueryChange } })], 1) : _vm._e(), _vm._v(" "), _c('ul', { class: _vm.prefixCls + '-content' }, [_vm._l(_vm.filterData, function (item) {
     return _c('li', { class: _vm.itemClasses(item), on: { "click": function click($event) {
-          $event.preventDefault();_vm.select(item);
+          $event.preventDefault();return _vm.select(item);
         } } }, [_c('Checkbox', { attrs: { "value": _vm.isCheck(item), "disabled": item.disabled } }), _vm._v(" "), _c('span', { domProps: { "innerHTML": _vm._s(_vm.showLabel(item)) } })], 1);
   }), _vm._v(" "), _c('li', { class: _vm.prefixCls + '-content-not-found' }, [_vm._v(_vm._s(_vm.notFoundText))])], 2)]), _vm._v(" "), _vm.showFooter ? _c('div', { class: _vm.prefixCls + '-footer' }, [_vm._t("default")], 2) : _vm._e()]);
 };
@@ -40719,13 +40787,13 @@ Object.defineProperty(exports, "__esModule", {
 var render = function render() {
   var _vm = this;var _h = _vm.$createElement;var _c = _vm._self._c || _h;return _c('ul', { class: [_vm.prefixCls + '-list'] }, _vm._l(_vm.files, function (file) {
     return _c('li', { class: _vm.fileCls(file), on: { "click": function click($event) {
-          _vm.handleClick(file);
+          return _vm.handleClick(file);
         } } }, [_c('span', { on: { "click": function click($event) {
-          _vm.handlePreview(file);
+          return _vm.handlePreview(file);
         } } }, [_c('Icon', { attrs: { "type": _vm.format(file) } }), _vm._v(" " + _vm._s(file.name) + "\n        ")], 1), _vm._v(" "), _c('Icon', { directives: [{ name: "show", rawName: "v-show", value: file.status === 'finished', expression: "file.status === 'finished'" }], class: [_vm.prefixCls + '-list-remove'], attrs: { "type": "ios-close" }, nativeOn: { "click": function click($event) {
-          _vm.handleRemove(file);
+          return _vm.handleRemove(file);
         } } }), _vm._v(" "), _c('transition', { attrs: { "name": "fade" } }, [file.showProgress ? _c('i-progress', { attrs: { "stroke-width": 2, "percent": _vm.parsePercentage(file.percentage), "status": file.status === 'finished' && file.showProgress ? 'success' : 'normal' } }) : _vm._e()], 1)], 1);
-  }));
+  }), 0);
 };
 var staticRenderFns = [];
 exports.render = render;
@@ -41493,8 +41561,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_tree_select_vue__ = __webpack_require__(248);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_tree_select_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_tree_select_vue__);
 /* harmony namespace reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_tree_select_vue__) if(__WEBPACK_IMPORT_KEY__ !== 'default') (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_tree_select_vue__[key]; }) }(__WEBPACK_IMPORT_KEY__));
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__babel_loader_sourceMap_node_modules_vue_loader_lib_template_compiler_index_id_data_v_5aece872_hasScoped_false_optionsId_0_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_tree_select_vue__ = __webpack_require__(620);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__babel_loader_sourceMap_node_modules_vue_loader_lib_template_compiler_index_id_data_v_5aece872_hasScoped_false_optionsId_0_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_tree_select_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__babel_loader_sourceMap_node_modules_vue_loader_lib_template_compiler_index_id_data_v_5aece872_hasScoped_false_optionsId_0_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_tree_select_vue__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__babel_loader_sourceMap_node_modules_vue_loader_lib_template_compiler_index_id_data_v_21472439_hasScoped_false_optionsId_0_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_tree_select_vue__ = __webpack_require__(620);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__babel_loader_sourceMap_node_modules_vue_loader_lib_template_compiler_index_id_data_v_21472439_hasScoped_false_optionsId_0_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_tree_select_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__babel_loader_sourceMap_node_modules_vue_loader_lib_template_compiler_index_id_data_v_21472439_hasScoped_false_optionsId_0_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_tree_select_vue__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__node_modules_vue_loader_lib_runtime_component_normalizer__ = __webpack_require__(0);
 /* script */
 
@@ -41512,8 +41580,8 @@ var __vue_module_identifier__ = null
 
 var Component = Object(__WEBPACK_IMPORTED_MODULE_2__node_modules_vue_loader_lib_runtime_component_normalizer__["a" /* default */])(
   __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_tree_select_vue___default.a,
-  __WEBPACK_IMPORTED_MODULE_1__babel_loader_sourceMap_node_modules_vue_loader_lib_template_compiler_index_id_data_v_5aece872_hasScoped_false_optionsId_0_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_tree_select_vue__["render"],
-  __WEBPACK_IMPORTED_MODULE_1__babel_loader_sourceMap_node_modules_vue_loader_lib_template_compiler_index_id_data_v_5aece872_hasScoped_false_optionsId_0_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_tree_select_vue__["staticRenderFns"],
+  __WEBPACK_IMPORTED_MODULE_1__babel_loader_sourceMap_node_modules_vue_loader_lib_template_compiler_index_id_data_v_21472439_hasScoped_false_optionsId_0_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_tree_select_vue__["render"],
+  __WEBPACK_IMPORTED_MODULE_1__babel_loader_sourceMap_node_modules_vue_loader_lib_template_compiler_index_id_data_v_21472439_hasScoped_false_optionsId_0_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_tree_select_vue__["staticRenderFns"],
   __vue_template_functional__,
   __vue_styles__,
   __vue_scopeId__,
@@ -41536,10 +41604,10 @@ Object.defineProperty(exports, "__esModule", {
 var render = function render() {
   var _vm = this;var _h = _vm.$createElement;var _c = _vm._self._c || _h;return _c('div', { directives: [{ name: "clickoutside", rawName: "v-clickoutside:exactElement", value: _vm.handleClose, expression: "handleClose", arg: "exactElement" }], class: _vm.classes }, [_c('div', { ref: "reference", staticClass: "exactElement", class: _vm.selectionCls, on: { "click": _vm.toggleMenu } }, [_vm._t("input", [_c('input', { attrs: { "type": "hidden", "name": _vm.name }, domProps: { "value": _vm.model } }), _vm._v(" "), _vm._l(_vm.selectedMultiple, function (item, index) {
     return _c('div', { staticClass: "ivu-tag ivu-tag-checked" }, [_c('span', { staticClass: "ivu-tag-text" }, [_vm._v(_vm._s(item.label))]), _vm._v(" "), _c('Icon', { attrs: { "type": "ios-close" }, nativeOn: { "click": function click($event) {
-          $event.stopPropagation();_vm.removeTag(index);
+          $event.stopPropagation();return _vm.removeTag(index);
         } } })], 1);
   }), _vm._v(" "), _c('span', { directives: [{ name: "show", rawName: "v-show", value: _vm.showPlaceholder && !_vm.filterable, expression: "showPlaceholder && !filterable" }], class: [_vm.prefixCls + '-placeholder'] }, [_vm._v(_vm._s(_vm.localePlaceholder))]), _vm._v(" "), _c('span', { directives: [{ name: "show", rawName: "v-show", value: !_vm.showPlaceholder && !_vm.multiple && !_vm.filterable, expression: "!showPlaceholder && !multiple && !filterable" }], class: [_vm.prefixCls + '-selected-value'] }, [_vm._v(_vm._s(_vm.selectedSingle))]), _vm._v(" "), _vm.filterable ? _c('input', { directives: [{ name: "model", rawName: "v-model", value: _vm.query, expression: "query" }], ref: "input", class: [_vm.prefixCls + '-input'], style: _vm.inputStyle, attrs: { "id": _vm.elementId, "type": "text", "disabled": _vm.disabled, "placeholder": _vm.showPlaceholder ? _vm.localePlaceholder : '', "autocomplete": "off", "spellcheck": "false" }, domProps: { "value": _vm.query }, on: { "blur": _vm.handleBlur, "keydown": [_vm.resetInputState, function ($event) {
-        if (!('button' in $event) && _vm._k($event.keyCode, "delete", [8, 46], $event.key, ["Backspace", "Delete"])) {
+        if (!$event.type.indexOf('key') && _vm._k($event.keyCode, "delete", [8, 46], $event.key, ["Backspace", "Delete", "Del"])) {
           return null;
         }return _vm.handleInputDelete($event);
       }], "input": function input($event) {
@@ -41548,7 +41616,7 @@ var render = function render() {
         }_vm.query = $event.target.value;
       } } }) : _vm._e(), _vm._v(" "), _c('Icon', { directives: [{ name: "show", rawName: "v-show", value: _vm.showCloseIcon, expression: "showCloseIcon" }], class: [_vm.prefixCls + '-arrow'], attrs: { "type": "ios-close-circle" }, nativeOn: { "click": function click($event) {
         $event.stopPropagation();return _vm.clearSingleSelect($event);
-      } } }), _vm._v(" "), !_vm.remote ? _c('Icon', { class: [_vm.prefixCls + '-arrow'], attrs: { "type": "ios-arrow-down" } }) : _vm._e()])], 2), _vm._v(" "), _c('Drop', { directives: [{ name: "show", rawName: "v-show", value: _vm.dropVisible, expression: "dropVisible" }, { name: "transfer-dom", rawName: "v-transfer-dom" }], ref: "dropdown", staticClass: "ivu-tree-select-dropdown exactElement", class: _vm.dropdownCls, attrs: { "placement": _vm.placement, "data-transfer": _vm.transfer }, on: { "click": _vm.handleTransferClick } }, [_c('ul', { directives: [{ name: "show", rawName: "v-show", value: _vm.notFoundShow, expression: "notFoundShow" }], class: [_vm.prefixCls + '-not-found'] }, [_c('li', [_vm._v(_vm._s(_vm.localeNotFoundText))])]), _vm._v(" "), _c('ul', { directives: [{ name: "show", rawName: "v-show", value: !_vm.notFound && !_vm.remote || _vm.remote && !_vm.loading && !_vm.notFound, expression: "(!notFound && !remote) || (remote && !loading && !notFound)" }], class: [_vm.prefixCls + '-dropdown-list'] }, [_c('Tree', _vm._b({ ref: "selector", attrs: { "data": _vm.currentData, "load-data": _vm.handleRemoteLoadData, "multiple": _vm.multiple, "show-checkbox": _vm.multiple, "check-directly": "", "check-strictly": _vm.checkStrictly }, on: { "on-select-change": _vm.handleSelected, "on-check-change": _vm.handleChecked } }, 'Tree', _vm.options, false))], 1), _vm._v(" "), _c('ul', { directives: [{ name: "show", rawName: "v-show", value: _vm.loading, expression: "loading" }], class: [_vm.prefixCls + '-loading'] }, [_vm._v(_vm._s(_vm.localeLoadingText))])])], 1);
+      } } }), _vm._v(" "), !_vm.remote ? _c('Icon', { class: [_vm.prefixCls + '-arrow'], attrs: { "type": "ios-arrow-down" } }) : _vm._e()])], 2), _vm._v(" "), _c('Drop', { directives: [{ name: "show", rawName: "v-show", value: _vm.dropVisible, expression: "dropVisible" }, { name: "transfer-dom", rawName: "v-transfer-dom" }], ref: "dropdown", staticClass: "ivu-tree-select-dropdown exactElement", class: _vm.dropdownCls, attrs: { "placement": _vm.placement, "data-transfer": _vm.transfer }, on: { "on-update-popper": _vm.handleUpdatePopper, "click": _vm.handleTransferClick } }, [_c('ul', { directives: [{ name: "show", rawName: "v-show", value: _vm.notFoundShow, expression: "notFoundShow" }], class: [_vm.prefixCls + '-not-found'] }, [_c('li', [_vm._v(_vm._s(_vm.localeNotFoundText))])]), _vm._v(" "), _c('ul', { directives: [{ name: "show", rawName: "v-show", value: !_vm.notFound && !_vm.remote || _vm.remote && !_vm.loading && !_vm.notFound, expression: "(!notFound && !remote) || (remote && !loading && !notFound)" }], class: [_vm.prefixCls + '-dropdown-list'] }, [_c('Tree', _vm._b({ ref: "selector", attrs: { "data": _vm.currentData, "load-data": _vm.handleRemoteLoadData, "multiple": _vm.multiple, "show-checkbox": _vm.multiple, "check-directly": "", "check-strictly": _vm.checkStrictly }, on: { "on-select-change": _vm.handleSelected, "on-check-change": _vm.handleChecked } }, 'Tree', _vm.options, false))], 1), _vm._v(" "), _c('ul', { directives: [{ name: "show", rawName: "v-show", value: _vm.loading, expression: "loading" }], class: [_vm.prefixCls + '-loading'] }, [_vm._v(_vm._s(_vm.localeLoadingText))])])], 1);
 };
 var staticRenderFns = [];
 exports.render = render;
