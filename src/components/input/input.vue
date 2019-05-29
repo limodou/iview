@@ -142,9 +142,9 @@
             },
             autocomplete: {
                 validator (value) {
-                    return oneOf(value, ['on', 'off']);
+                    return oneOf(value, ['on', 'off', 'nope', 'new-password']);
                 },
-                default: 'off'
+                default: 'new-password'
             },
             clearable: {
                 type: Boolean,

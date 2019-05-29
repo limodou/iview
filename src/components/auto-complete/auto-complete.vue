@@ -153,7 +153,8 @@
             handleChange (val) {
                 if (val === undefined || val === null) return;
                 this.currentValue = val;
-                this.$refs.input.blur();
+                // 去掉不必要的blur
+                // this.$refs.input.blur();
                 this.$emit('on-select', val);
             },
             handleFocus (event) {

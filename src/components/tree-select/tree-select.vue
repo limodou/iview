@@ -86,11 +86,11 @@ export default {
     value: {
         default: ''
     },
-    // 使用时，也得设置 value 才行
-    label: {
-        type: [String, Number, Array],
-        default: ''
-    },
+    // // 使用时，也得设置 value 才行
+    // label: {
+    //     type: [String, Number, Array],
+    //     default: ''
+    // },
     multiple: {
         type: Boolean,
         default: false
@@ -213,7 +213,8 @@ export default {
       notFound: false,
       slotChangeDuration: false,    // if slot change duration and in multiple, set true and after slot change, set false
       model: model,
-      currentLabel: this.label,
+      currentLabel: '',
+      currentNode: {}, // 单选时选中结点
       oldData: null, // 用于保存原来的数据
       currentData: this.choices // 当前数据
     }
@@ -384,8 +385,9 @@ export default {
     clearSingleSelect () {
         let model = this.model
         if (this.showCloseIcon) {
-            this.model = '';
+            this.model = ''
             this.selectedSingle = ''
+            this.currentNode = {}
 
             if (this.filterable) {
                 this.query = '';
@@ -417,10 +419,12 @@ export default {
             this.selectedSingle = ''
             this.model = ''
             this.query = this.selectedSingle
+            this.currentNode = {}
         } else {
             this.selectedSingle = item[0].title
             this.model = item[0].id
             this.query = this.selectedSingle
+            this.currentNode = item
         }
         if (this.selectClose) {
           this.visible = false
@@ -434,7 +438,7 @@ export default {
         // 非叶子结点，并且当前值中不存在
         if (node.checked) {
             if (((this.onlyLeaf && !node[this.childrenKey]) || (!this.onlyLeaf)) && this.model.indexOf(node.id) === -1) {
-                this.selectedMultiple.push({value:node.id || node.title, label: node.title})
+                this.selectedMultiple.push(Object.assign({}, node, {value:node.id || node.title, label: node.title}))
                 model.push(node.id)
                 this.model = model
             }
@@ -614,6 +618,7 @@ export default {
   watch: {
       // value支持 {label, value} 形式
       value: {
+          immediate: true,
           handler (val) {
             if (!val || Array.isArray(val) && val.length === 0) {
                 this.model = val
@@ -636,19 +641,19 @@ export default {
           },
           deep: true
       },
-      label: {
-          immediate: true,
-          handler (val) {
-            this.currentLabel = val;
-            if (val) {
-                if (this.multiple && this.value) {
-                    this.selectedMultiple = val // 需要 value 和 label 都有值,或label 是 [{label: value}, ...]的形式
-                } else {
-                    this.selectedSingle = val
-                }
-            }
-          }
-      },
+    //   label: {
+    //       immediate: true,
+    //       handler (val) {
+    //         this.currentLabel = val;
+    //         if (val) {
+    //             if (this.multiple && this.value) {
+    //                 this.selectedMultiple = val // 需要 value 和 label 都有值,或label 是 [{label: value}, ...]的形式
+    //             } else {
+    //                 this.selectedSingle = val
+    //             }
+    //         }
+    //       }
+    //   },
       currentLabel: {
         immediate: true,
         handler (val) {
@@ -665,7 +670,7 @@ export default {
       model () {
         if (this.labelInValue) {
             if (!this.multiple) {
-                this.$emit('input', {value: this.model, label: this.selectedSingle})
+                this.$emit('input', Object.assign({}, this.currentNode, {value: this.model, label: this.selectedSingle}))
             } else {
                 this.$emit('input', this.selectedMultiple.slice())
             }
