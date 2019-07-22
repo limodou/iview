@@ -268,6 +268,7 @@
                 let curIndex = this.showCopyTrack ? this.copyTrackIndex : this.trackIndex;
                 if (event === this.trigger && curIndex !== n) {
                     this.updateTrackIndex(n);
+                    this.$emit('on-change', curIndex, n);
                     this.$emit('input', n);
                     // Reset autoplay timer when trigger be activated
                     this.setAutoplay();

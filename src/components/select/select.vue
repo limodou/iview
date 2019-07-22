@@ -265,7 +265,7 @@
         },
         methods: {
             toggleMenu () {
-                if (this.disabled || this.autoComplete) {
+                if (this.disabled) {
                     return false;
                 }
                 this.visible = !this.visible;
@@ -438,7 +438,8 @@
                         }
                     });
 
-                    this.hideMenu();
+                    if (!this.autoComplete)
+                        this.hideMenu();
 
                     if (!init) {
                         if (this.labelInValue) {
@@ -717,6 +718,7 @@
                         }
                     } else {
                         this.model = value;
+                        this.hideMenu();
 
                         if (this.filterable) {
                             this.findChild((child) => {

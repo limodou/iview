@@ -424,7 +424,7 @@ export default {
             this.selectedSingle = item[0].title
             this.model = item[0].id
             this.query = this.selectedSingle
-            this.currentNode = item
+            this.currentNode = item[0]
         }
         if (this.selectClose) {
           this.visible = false
@@ -667,20 +667,23 @@ export default {
         },
         deep: true
       },
-      model () {
-        if (this.labelInValue) {
-            if (!this.multiple) {
-                this.$emit('input', Object.assign({}, this.currentNode, {value: this.model, label: this.selectedSingle}))
+      model:{
+        handler (v) {
+            if (this.labelInValue) {
+                if (!this.multiple) {
+                    this.$emit('input', Object.assign({}, this.currentNode, {value: this.model, label: this.selectedSingle}))
+                } else {
+                    this.$emit('input', this.selectedMultiple.slice())
+                }
             } else {
-                this.$emit('input', this.selectedMultiple.slice())
+                if (!this.multiple) {
+                    this.$emit('input', this.model)
+                } else {
+                    this.$emit('input', this.model.slice())
+                }
             }
-        } else {
-            if (!this.multiple) {
-                this.$emit('input', this.model)
-            } else {
-                this.$emit('input', this.model.slice())
-            }
-        }
+        },
+        deep: true
       },
       choices: {
         handler (val) {

@@ -9,10 +9,11 @@
         :size="size"
         :placement="placement"
         :value="currentValue"
+        :loading="loading"
         filterable
         remote
         auto-complete
-        :remote-method="remoteMethod"
+        :remote-method="handleRemote"
         @on-change="handleChange"
         :transfer="transfer">
         <slot name="input">
@@ -78,6 +79,10 @@
                     return !this.$IVIEW || this.$IVIEW.size === '' ? 'default' : this.$IVIEW.size;
                 }
             },
+            remoteMethod: {
+                type: [Function, Boolean],
+                default: false
+            },
             icon: {
                 type: String
             },
@@ -107,6 +112,8 @@
         data () {
             return {
                 currentValue: this.value,
+                loading: false,
+                currentData: this.data,
                 disableEmitChange: false    // for Form reset
             };
         },
@@ -122,9 +129,9 @@
             },
             filteredData () {
                 if (this.filterMethod) {
-                    return this.data.filter(item => this.filterMethod(this.currentValue, item));
+                    return this.currentData.filter(item => this.filterMethod(this.currentValue, item));
                 } else {
-                    return this.data;
+                    return this.currentData;
                 }
             }
         },
@@ -144,12 +151,28 @@
                 }
                 this.$emit('on-change', val);
                 this.dispatch('FormItem', 'on-form-change', val);
+            },
+            data: {
+                handler (v) {
+                    this.currentData = v
+                },
+                deep: true
             }
         },
         methods: {
-            remoteMethod (query) {
-                this.$emit('on-search', query);
+            handleRemote (query) {
+                const callback = items => {
+                    this.currentData = items
+                    this.loading = false
+                }
+                if (this.remoteMethod) {
+                    this.loading = true
+                    this.remoteMethod(query, callback)
+                }
             },
+            // remoteMethod (query) {
+            //     this.$emit('on-search', query);
+            // },
             handleChange (val) {
                 if (val === undefined || val === null) return;
                 this.currentValue = val;
