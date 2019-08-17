@@ -392,6 +392,7 @@ export default {
             if (this.filterable) {
                 this.query = '';
             }
+            this.notFound = false
 
             this.$nextTick( () => {
                 this.deselect(model)
@@ -717,7 +718,7 @@ export default {
           } else {
               if (this.filterable) {
                   if (!this.autoComplete) this.$refs.input.blur();
-                  this.query = ''
+                //   this.query = ''
               }
               this.broadcast('Drop', 'on-destroy-popper');
               this.$emit('close')
