@@ -434,7 +434,6 @@ export default {
     },
 
     handleChecked (items, node) {
-        console.log('aaaaa')
       if (this.multiple) {
         let model = this.model.slice()
         // 非叶子结点，并且当前值中不存在
