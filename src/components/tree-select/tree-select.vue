@@ -67,7 +67,7 @@ import Icon from '../icon';
 import Drop from '../select/dropdown.vue';
 import clickoutside from '../../directives/clickoutside';
 import TransferDom from '../../directives/transfer-dom';
-import { oneOf, findComponentDownward } from '../../utils/assist';
+import { oneOf, findComponentDownward, deepCompare } from '../../utils/assist';
 import Emitter from '../../mixins/emitter';
 import Locale from '../../mixins/locale';
 import { debounce } from '../select/utils';
@@ -150,7 +150,7 @@ export default {
     },
     transfer: {
         type: Boolean,
-        default: false
+        default: true
     },
     // Use for AutoComplete
     autoComplete: {
@@ -197,7 +197,7 @@ export default {
     }
   },
   data () {
-    let model = this.value
+    let model = ''
     if (this.multiple) {
         if (!this.value) model = []
     }
@@ -434,6 +434,7 @@ export default {
     },
 
     handleChecked (items, node) {
+        console.log('aaaaa')
       if (this.multiple) {
         let model = this.model.slice()
         // 非叶子结点，并且当前值中不存在
@@ -621,6 +622,7 @@ export default {
       value: {
           immediate: true,
           handler (val) {
+            if (deepCompare(val, this.model)) return
             if (!val || Array.isArray(val) && val.length === 0) {
                 this.model = val
                 this.query = ''
