@@ -83,7 +83,7 @@
                 return [
                     `${prefixCls}-arrow`,
                     {
-                        [`${prefixCls}-arrow-disabled`]: this.data.disabled,
+                        // [`${prefixCls}-arrow-disabled`]: this.data.disabled,
                         [`${prefixCls}-arrow-open`]: this.data.expand
                     }
                 ];
@@ -92,6 +92,7 @@
                 return [
                     `${prefixCls}-title`,
                     {
+                        [`${prefixCls}-title-disabled`]: this.data.disabled,
                         [`${prefixCls}-title-selected`]: this.data.selected
                     }
                 ];
@@ -130,7 +131,7 @@
         methods: {
             handleExpand () {
                 const item = this.data;
-                if (item.disabled) return;
+                // if (item.disabled) return;
 
                 // async loading
                 if (item[this.childrenKey].length === 0) {

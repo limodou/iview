@@ -36,7 +36,8 @@
                 let style = {};
                 if (this.width) style.minWidth = `${this.width}px`;
 
-                if (this.transfer) style['z-index'] = 1060 + this.tIndex;
+                // if (this.transfer) style['z-index'] = 9060 + this.tIndex;
+                style['z-index'] = 9060 + this.tIndex;
 
                 return style;
             }

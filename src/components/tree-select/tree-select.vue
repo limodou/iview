@@ -46,7 +46,7 @@
             <ul v-show="(!notFound && !remote) || (remote && !loading && !notFound)" :class="[prefixCls + '-dropdown-list']">
               <Tree
                 ref="selector"
-                :data="currentData"
+                :data="treedata"
                 v-bind="options"
                 @on-select-change="handleSelected"
                 @on-check-change="handleChecked"
@@ -234,6 +234,20 @@ export default {
             }
         ];
     },
+    treedata () {
+        const f = (parent) => {
+            for (let c of parent) {
+                // 是否有子结点，有则disabled
+                c.disabled = Boolean(this.onlyLeaf && ((c.children && c.children.length) || ('loading' in c && !c.loadding)))
+                if (c.children && c.children.length) {
+                    f(c.children)
+                }
+            }
+        }
+        f(this.currentData)
+        return this.currentData
+    },
+
     dropdownCls () {
         return {
             [prefixCls + '-dropdown-transfer']: this.transfer,
@@ -505,6 +519,7 @@ export default {
                     n.selected = false
                     n.checked = false
                     n.indeterminate = false
+                    n.expand = true
                     p = n[this.childrenKey]
                 }
             }
@@ -515,6 +530,7 @@ export default {
             n.selected = false
             n.checked = false
             n.indeterminate = false
+            n.expand = true
         }
 
         const match = (node) => {
@@ -750,13 +766,13 @@ export default {
                     this.oldData = this.currentData
                 }
                 this.currentData = this.rebuild()
-                this.notFound = this.currentData.length === 0
             } else {
                 if (this.oldData) {
                     this.currentData = this.oldData
                     this.oldData = null
                 }
             }
+            this.notFound = this.currentData.length === 0
           }
         //   this.selectToChangeQuery = false;
           this.broadcast('Drop', 'on-update-popper');
