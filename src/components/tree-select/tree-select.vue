@@ -639,10 +639,20 @@ export default {
           handler (val) {
             if (deepCompare(val, this.model)) return
             if (!val || Array.isArray(val) && val.length === 0) {
+                const model = this.model
                 this.model = val
                 this.query = ''
                 this.selectedSingle = ''
                 this.selectedMultiple = []
+                this.$nextTick( () => {
+                    if (this.multiple) {
+                        for(const item of this.model) {
+                            this.deselect(item)
+                        }
+                    } else {
+                        this.deselect(model)
+                    }
+                })
             } else {
                 if (this.labelInValue) {
                     if (this.multiple) {
@@ -726,7 +736,7 @@ export default {
                   }
                   if (this.remote) {
                       const options = this.$slots.default || [];
-                      if (this.query !== '') {
+                      if (this.query !== '' && this.remoteQuery) {
                           this.remoteQuery(this.query);
                       }
                   }

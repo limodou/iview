@@ -1,5 +1,5 @@
 <template>
-    <div :class="classes">
+    <div :class="classes" @mouseenter="stop=true" @mouseleave="stop=false">
         <button type="button" :class="arrowClasses" class="left" @click="arrowEvent(-1)">
             <Icon type="ios-arrow-back"></Icon>
         </button>
@@ -104,6 +104,7 @@
                 trackIndex: this.value,
                 copyTrackIndex: this.value,
                 hideTrackPos: -1, // 默认左滑
+                stop: false, // 当鼠标移进时，停止播放
             };
         },
         computed: {
@@ -277,7 +278,8 @@
                 window.clearInterval(this.timer);
                 if (this.autoplay) {
                     this.timer = window.setInterval(() => {
-                        this.add(1);
+                        if (!this.stop)
+                            this.add(1);
                     }, this.autoplaySpeed);
                 }
             },

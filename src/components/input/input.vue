@@ -323,6 +323,7 @@
                 this.$emit('input', '');
                 this.setCurrentValue('');
                 this.$emit('on-change', e);
+                this.$emit('on-clear') // 增加清除事件
             },
             handleSearch () {
                 if (this.disabled) return false;
