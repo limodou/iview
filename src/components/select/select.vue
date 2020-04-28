@@ -26,6 +26,7 @@
                     @blur="handleBlur"
                     @keydown="resetInputState"
                     @keydown.delete="handleInputDelete"
+                    @keydown.enter="handleCreateItem"
                     ref="input">
                 <Icon type="ios-close-circle" :class="[prefixCls + '-arrow']" v-show="showCloseIcon" @click.native.stop="clearSingleSelect"></Icon>
                 <Icon type="ios-arrow-down" :class="[prefixCls + '-arrow']" v-if="!remote"></Icon>
@@ -145,7 +146,12 @@
             //记录删除或选中，对于Tag的删除及多选的切换
             onChanging: {
 
-            }
+            },
+            allowCreate: {
+                type: Boolean,
+                default: false
+            }, // 是否允许直接创建option 从4.0复制
+            onCreateItem: {}, // 创建回调函数，外部应创建出对应的option元素
         },
         data () {
             return {
@@ -163,7 +169,7 @@
                 notFound: false,
                 slotChangeDuration: false,    // if slot change duration and in multiple, set true and after slot change, set false
                 model: this.value,
-                currentLabel: this.label
+                currentLabel: this.label,
             };
         },
         computed: {
@@ -679,6 +685,37 @@
                     } else if (this.multiple && !this.model.length) {
                         this.selectedMultiple = [];
                     }
+                }
+            },
+            // 4.0.0 create new item
+            handleCreateItem () {
+                if (this.allowCreate && this.query !== '') {
+                    const query = this.query;
+                    let option = {
+                        value: query,
+                        label: query
+                    };
+                    if (this.onCreateItem) {
+                        option = this.onCreateItem(query)
+                    }
+                    this.query = '';
+
+                    this.$nextTick(() => {
+                        if (this.multiple) {
+                            let found = false
+                            for(let item of this.model) {
+                                if (item.value === option.value) {
+                                    found = true
+                                    break
+                                }
+                            }
+                            if (!found) {
+                                this.model.push(option)
+                            }
+                        } else {
+                            this.model = query
+                        }
+                    })
                 }
             }
         },

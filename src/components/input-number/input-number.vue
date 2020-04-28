@@ -86,7 +86,7 @@
             },
             value: {
                 type: Number,
-                default: 1
+                default: 0
             },
             size: {
                 validator (value) {
@@ -193,7 +193,7 @@
                 if (this.formatter && this.precisionValue !== null) {
                     return this.formatter(this.precisionValue);
                 } else {
-                    return this.precisionValue;
+                    return this.currentValue;
                 }
             }
         },
@@ -252,15 +252,23 @@
                 this.setValue(val);
             },
             setValue (val) {
-                // 如果 step 是小数，且没有设置 precision，是有问题的
-                if (val && !isNaN(this.precision)) val = Number(Number(val).toFixed(this.precision));
+                // 处理是否有小数点，如果位数大于2位才进行转换处理
+                let b = val + ''
+                let n_val
+                if (b.indexOf('.')>-1 && b.split('.')[1].length > 2) {
+                    n_val = val
+                    // 如果 step 是小数，且没有设置 precision，是有问题的
+                    if (val && !isNaN(this.precision)) val = Number(Number(val).toFixed(this.precision));
+                } else {
+                    n_val = val
+                }
 
                 const {min, max} = this;
                 if (val!==null) {
                     if (val > max) {
-                        val = max;
+                        n_val = max;
                     } else if (val < min) {
-                        val = min;
+                        n_val = min;
                     }
                 }
 
@@ -273,6 +281,8 @@
             },
             focus (event) {
                 this.focused = true;
+                if (this.currentValue === 0)
+                    event.target.select();
                 this.$emit('on-focus', event);
             },
             blur () {

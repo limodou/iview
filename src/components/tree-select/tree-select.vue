@@ -263,18 +263,9 @@ export default {
     showPlaceholder () {
         let status = false;
 
-        if ((typeof this.model) === 'string') {
-            if (this.model === '') {
-                status = true;
-            }
-        } else if (Array.isArray(this.model)) {
-            if (!this.model.length) {
-                status = true;
-            }
-        } else if( this.model === null){
+        if (!this.model || Array.isArray(this.model) && this.model.length === 0) {
             status = true;
         }
-
         return status;
     },
     showCloseIcon () {
@@ -590,6 +581,7 @@ export default {
             const cb = (data) => {
                 this.currentData = data
                 this.notFound = this.currentData.length === 0
+                this.doQuery(this.query)
             }
             this.remoteLoadData(item, cb)
         }
@@ -603,7 +595,7 @@ export default {
                 }
             }
         } else {
-            if (item.id === this.selectedSingle) {
+            if (item.title === this.selectedSingle) {
                 return true
             }
         }
@@ -620,15 +612,52 @@ export default {
                 //检查是否选中状态
                 if (this.isSelected(item)) {
                     this.$set(item, 'checked', true)
-                    // this.$set(item, 'selected', true)
+                    // 恢复选中处理
+                    this.$set(item, 'selected', true)
                 }
                 if (item[this.childrenKey] && item[this.childrenKey].length > 0) {
                     walk(item[this.childrenKey])
                 }
             }
         }
-        if (this.multiple)
-            walk(this.currentData)
+        // if (this.multiple)
+        walk(this.currentData)
+    },
+    doQuery (val) {
+        if (this.remote && this.remoteQuery) {
+        if (val) {
+            if (!this.oldData) {
+                this.oldData = this.currentData
+            }
+            const cb = (data) => {
+                this.currentData = data
+                this.notFound = this.currentData.length === 0
+            }
+            this.remoteQuery(val, cb)
+        } else {
+            if (this.oldData) {
+                this.currentData = this.oldData
+                this.oldData = null
+            }
+        }
+        this.focusIndex = 0;
+        } else {
+        // 如果有值且可以搜索，则如果oldData为空，则将currentData保存在上面，然后重建树结构
+        if (val && this.filterable) {
+            if (!this.oldData) {
+                this.oldData = this.currentData
+            }
+            this.currentData = this.rebuild()
+        } else {
+            if (this.oldData) {
+                this.currentData = this.oldData
+                this.oldData = null
+            }
+        }
+        this.notFound = this.currentData.length === 0
+        }
+    //   this.selectToChangeQuery = false;
+        this.broadcast('Drop', 'on-update-popper');        
     }
   },
 
@@ -638,34 +667,38 @@ export default {
           immediate: true,
           handler (val) {
             if (deepCompare(val, this.model)) return
-            if (!val || Array.isArray(val) && val.length === 0) {
-                const model = this.model
+            let model = this.model
+            if (this.labelInValue) {
+                if (this.multiple) {
+                    this.model = val.map(x=>x.value)
+                    this.currentLabel = val.slice()
+                } else {
+                    this.model = val.value
+                    this.currentLabel = this.model ? val.label : ''
+                }
+            } else {
                 this.model = val
+            }
+            if (this.multiple && this.model.length === 0) {
                 this.query = ''
-                this.selectedSingle = ''
                 this.selectedMultiple = []
                 this.$nextTick( () => {
-                    if (this.multiple) {
-                        for(const item of this.model) {
-                            this.deselect(item)
-                        }
-                    } else {
-                        this.deselect(model)
+                    for(const item of model) {
+                        this.deselect(item)
                     }
                 })
-            } else {
-                if (this.labelInValue) {
-                    if (this.multiple) {
-                        this.model = val.map(x=>x.value)
-                        this.currentLabel = val.slice()
-                    } else {
-                        this.model = val.value
-                        this.currentLabel = this.model ? val.label : ''
-                    }
-                } else {
-                    this.model = val
-                }
             }
+            if (!this.multiple) {
+                if (!this.model) {
+                    this.query = ''
+                    this.selectedSingle = ''
+                    this.$nextTick( () => {
+                        this.deselect(model)
+                    })
+                } else {
+                    this.query = this.currentLabel
+                }
+            } 
           },
           deep: true
       },
@@ -699,7 +732,12 @@ export default {
         handler (v) {
             if (this.labelInValue) {
                 if (!this.multiple) {
-                    this.$emit('input', Object.assign({}, this.currentNode, {value: this.model, label: this.selectedSingle}))
+                    // 有值返回对象，无值空对象
+                    if (this.model) {
+                        this.$emit('input', Object.assign({}, this.currentNode, {value: this.model, label: this.selectedSingle}))
+                    } else {
+                        this.$emit('input', {})
+                    }
                 } else {
                     this.$emit('input', this.selectedMultiple.slice())
                 }
@@ -752,40 +790,7 @@ export default {
           }
       },
       query (val) {
-          if (this.remote && this.remoteQuery) {
-            if (val) {
-                if (!this.oldData) {
-                    this.oldData = this.currentData
-                }
-                const cb = (data) => {
-                    this.currentData = data
-                    this.notFound = this.currentData.length === 0
-                }
-                this.remoteQuery(val, cb)
-            } else {
-                if (this.oldData) {
-                    this.currentData = this.oldData
-                    this.oldData = null
-                }
-            }
-            this.focusIndex = 0;
-          } else {
-            // 如果有值且可以搜索，则如果oldData为空，则将currentData保存在上面，然后重建树结构
-            if (val && this.filterable) {
-                if (!this.oldData) {
-                    this.oldData = this.currentData
-                }
-                this.currentData = this.rebuild()
-            } else {
-                if (this.oldData) {
-                    this.currentData = this.oldData
-                    this.oldData = null
-                }
-            }
-            this.notFound = this.currentData.length === 0
-          }
-        //   this.selectToChangeQuery = false;
-          this.broadcast('Drop', 'on-update-popper');
+          this.doQuery(val)
       }
   }
 }
