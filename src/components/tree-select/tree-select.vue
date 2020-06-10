@@ -263,7 +263,7 @@ export default {
     showPlaceholder () {
         let status = false;
 
-        if (!this.model || Array.isArray(this.model) && this.model.length === 0) {
+        if (!this.model || JSON.stringify(this.model) === '{}' || Array.isArray(this.model) && this.model.length === 0) {
             status = true;
         }
         return status;
@@ -386,6 +386,14 @@ export default {
         if (this.multiple && this.model.length && this.query === '') {
             this.removeTag(this.model.length - 1);
         }
+    },
+    reset () {
+        let model = this.multiple ? [] : this.labelInValue ? {} : '';
+        this.currentData = []
+        this.oldData = null
+        this.selectedSingle = ''
+        this.selectedMultiple = []
+        this.model = model
     },
     clearSingleSelect () {
         let model = this.model
@@ -666,6 +674,9 @@ export default {
       value: {
           immediate: true,
           handler (val) {
+            if (this.multiple) {
+                if (!val) val = []
+            }
             if (deepCompare(val, this.model)) return
             let model = this.model
             if (this.labelInValue) {
