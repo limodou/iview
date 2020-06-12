@@ -191,9 +191,16 @@ export default {
       default: true
     },
 
+    // 是否只允许选叶子结点
     onlyLeaf: {
       type: Boolean,
       default: true
+    },
+
+    // 是否在只允许选叶子结点时，禁用父结点
+    parentDisabledWhenOnlyLeaf: {
+        type: Boolean,
+        default: true
     }
   },
   data () {
@@ -238,7 +245,7 @@ export default {
         const f = (parent) => {
             for (let c of parent) {
                 // 是否有子结点，有则disabled
-                c.disabled = Boolean(this.onlyLeaf && ((c.children && c.children.length) || ('loading' in c && !c.loadding)))
+                c.disabled = Boolean(this.onlyLeaf && this.parentDisabledWhenOnlyLeaf && ((c.children && c.children.length) || ('loading' in c && !c.loadding)))
                 if (c.children && c.children.length) {
                     f(c.children)
                 }
@@ -316,6 +323,9 @@ export default {
         // if (this.autoComplete && !options.length) status = false;
 
         // return this.visible && status;
+        if (!this.visible) {
+            this.query = ''
+        }
         return this.visible
     },
     notFoundShow () {
@@ -446,26 +456,54 @@ export default {
       }
     },
 
-    handleChecked (items, node) {
-      if (this.multiple) {
-        let model = this.model.slice()
-        // 非叶子结点，并且当前值中不存在
-        if (node.checked) {
-            if (((this.onlyLeaf && !node[this.childrenKey]) || (!this.onlyLeaf)) && this.model.indexOf(node.id) === -1) {
-                this.selectedMultiple.push(Object.assign({}, node, {value:node.id || node.title, label: node.title}))
-                model.push(node.id)
-                this.model = model
-            }
-        } else {
-            this.selectedMultiple = this.selectedMultiple.filter((x) => x.value !== node.id)
-            let index = this.model.indexOf(node.id)
-            if (index > -1) {
-                model.splice(index, 1)
-                this.model = model
-            }
-        }
-      }
+    // 将 node 的值推送到 model 中，用于多选情况
+    // model 是 id 的数组，不是对象
+    pushData (model, selectedMultiple, node) {
+        selectedMultiple.push(Object.assign({}, node, {value:node.id || node.title, label: node.title}))
+        model.push(node.id)
     },
+
+    handleChecked (items, node) {
+        if (this.multiple) {
+            let model = [];
+            let selectedMultiple = [];
+            let hasChildren;
+            for (let item of items) {
+                hasChildren = item[this.childrenKey] ? item[this.childrenKey].length : null;
+                if (this.onlyLeaf) {
+                    if (!hasChildren) {
+                        this.pushData(model, selectedMultiple, item);
+                    }
+                } else {
+                    this.pushData(model, selectedMultiple, item);
+                }
+            }
+            this.selectedMultiple = selectedMultiple;
+            this.model = model;
+        }
+    },
+
+    // handleChecked (items, node) {
+    //   if (this.multiple) {
+    //     let model = this.model.slice()
+    //     // 非叶子结点，并且当前值中不存在
+    //     if (node.checked) {
+    //         let children = node[this.childrenKey];
+    //         if (((this.onlyLeaf && (!children || !children.length)) || !this.onlyLeaf) && this.model.indexOf(node.id) === -1) {
+    //             this.selectedMultiple.push(Object.assign({}, node, {value:node.id || node.title, label: node.title}))
+    //             model.push(node.id)
+    //             this.model = model
+    //         }
+    //     } else {
+    //         this.selectedMultiple = this.selectedMultiple.filter((x) => x.value !== node.id)
+    //         let index = this.model.indexOf(node.id)
+    //         if (index > -1) {
+    //             model.splice(index, 1)
+    //             this.model = model
+    //         }
+    //     }
+    //   }
+    // },
 
     deselect (value) {
         const _search = (parent) => {
@@ -618,10 +656,15 @@ export default {
         const walk = (data) => {
             for(let item of data) {
                 //检查是否选中状态
-                if (this.isSelected(item)) {
-                    this.$set(item, 'checked', true)
-                    // 恢复选中处理
-                    this.$set(item, 'selected', true)
+                let flag = this.isSelected(item)
+                if (this.multiple) {
+                    if (!item.checked) {
+                        this.$set(item, 'checked', flag)
+                    }
+                } else {
+                    if (!item.selected) {
+                        this.$set(item, 'selected', flag)
+                    }
                 }
                 if (item[this.childrenKey] && item[this.childrenKey].length > 0) {
                     walk(item[this.childrenKey])
@@ -777,9 +820,9 @@ export default {
               if (this.filterable) {
                   if (this.multiple) {
                       this.$refs.input.focus();
-                      if (!this.query) {
-                        this.checkItems()
-                      }
+                    //   if (!this.query) {
+                    //     this.checkItems()
+                    //   }
                   } else {
                       if (!this.autoComplete) this.$refs.input.select();
                   }

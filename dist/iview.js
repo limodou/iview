@@ -25961,6 +25961,11 @@ exports.default = {
         onlyLeaf: {
             type: Boolean,
             default: true
+        },
+
+        parentDisabledWhenOnlyLeaf: {
+            type: Boolean,
+            default: true
         }
     },
     data: function data() {
@@ -26005,7 +26010,7 @@ exports.default = {
                     for (var _iterator = (0, _getIterator3.default)(parent), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
                         var c = _step.value;
 
-                        c.disabled = Boolean(this.onlyLeaf && (c.children && c.children.length || 'loading' in c && !c.loadding));
+                        c.disabled = Boolean(this.onlyLeaf && this.parentDisabledWhenOnlyLeaf && (c.children && c.children.length || 'loading' in c && !c.loadding));
                         if (c.children && c.children.length) {
                             f(c.children);
                         }
@@ -26087,6 +26092,9 @@ exports.default = {
         dropVisible: function dropVisible() {
             var status = true;
 
+            if (!this.visible) {
+                this.query = '';
+            }
             return this.visible;
         },
         notFoundShow: function notFoundShow() {
@@ -26201,36 +26209,56 @@ exports.default = {
                 }
             }
         },
+        pushData: function pushData(model, selectedMultiple, node) {
+            selectedMultiple.push((0, _assign2.default)({}, node, { value: node.id || node.title, label: node.title }));
+            model.push(node.id);
+        },
         handleChecked: function handleChecked(items, node) {
-            var _this4 = this;
-
             if (this.multiple) {
-                var model = this.model.slice();
+                var model = [];
+                var selectedMultiple = [];
+                var hasChildren = void 0;
+                var _iteratorNormalCompletion2 = true;
+                var _didIteratorError2 = false;
+                var _iteratorError2 = undefined;
 
-                if (node.checked) {
-                    if ((this.onlyLeaf && !node[this.childrenKey] || !this.onlyLeaf) && this.model.indexOf(node.id) === -1) {
-                        this.selectedMultiple.push((0, _assign2.default)({}, node, { value: node.id || node.title, label: node.title }));
-                        model.push(node.id);
-                        this.model = model;
+                try {
+                    for (var _iterator2 = (0, _getIterator3.default)(items), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+                        var item = _step2.value;
+
+                        hasChildren = item[this.childrenKey] ? item[this.childrenKey].length : null;
+                        if (this.onlyLeaf) {
+                            if (!hasChildren) {
+                                this.pushData(model, selectedMultiple, item);
+                            }
+                        } else {
+                            this.pushData(model, selectedMultiple, item);
+                        }
                     }
-                } else {
-                    this.selectedMultiple = this.selectedMultiple.filter(function (x) {
-                        (0, _newArrowCheck3.default)(this, _this4);
-                        return x.value !== node.id;
-                    }.bind(this));
-                    var index = this.model.indexOf(node.id);
-                    if (index > -1) {
-                        model.splice(index, 1);
-                        this.model = model;
+                } catch (err) {
+                    _didIteratorError2 = true;
+                    _iteratorError2 = err;
+                } finally {
+                    try {
+                        if (!_iteratorNormalCompletion2 && _iterator2.return) {
+                            _iterator2.return();
+                        }
+                    } finally {
+                        if (_didIteratorError2) {
+                            throw _iteratorError2;
+                        }
                     }
                 }
+
+                this.selectedMultiple = selectedMultiple;
+                this.model = model;
             }
         },
         deselect: function deselect(value) {
-            var _this5 = this;
+            var _this4 = this;
 
             var _search = function (parent) {
-                (0, _newArrowCheck3.default)(this, _this5);
+                (0, _newArrowCheck3.default)(this, _this4);
 
                 if (parent.id === value) {
                     if (this.multiple) {
@@ -26242,60 +26270,60 @@ exports.default = {
                     return true;
                 } else {
                     if (parent[this.childrenKey] && parent[this.childrenKey].length > 0) {
-                        var _iteratorNormalCompletion2 = true;
-                        var _didIteratorError2 = false;
-                        var _iteratorError2 = undefined;
+                        var _iteratorNormalCompletion3 = true;
+                        var _didIteratorError3 = false;
+                        var _iteratorError3 = undefined;
 
                         try {
-                            for (var _iterator2 = (0, _getIterator3.default)(parent[this.childrenKey]), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-                                var item = _step2.value;
+                            for (var _iterator3 = (0, _getIterator3.default)(parent[this.childrenKey]), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+                                var item = _step3.value;
 
                                 if (_search(item)) return true;
                             }
                         } catch (err) {
-                            _didIteratorError2 = true;
-                            _iteratorError2 = err;
+                            _didIteratorError3 = true;
+                            _iteratorError3 = err;
                         } finally {
                             try {
-                                if (!_iteratorNormalCompletion2 && _iterator2.return) {
-                                    _iterator2.return();
+                                if (!_iteratorNormalCompletion3 && _iterator3.return) {
+                                    _iterator3.return();
                                 }
                             } finally {
-                                if (_didIteratorError2) {
-                                    throw _iteratorError2;
+                                if (_didIteratorError3) {
+                                    throw _iteratorError3;
                                 }
                             }
                         }
                     }
                 }
             }.bind(this);
-            var _iteratorNormalCompletion3 = true;
-            var _didIteratorError3 = false;
-            var _iteratorError3 = undefined;
+            var _iteratorNormalCompletion4 = true;
+            var _didIteratorError4 = false;
+            var _iteratorError4 = undefined;
 
             try {
-                for (var _iterator3 = (0, _getIterator3.default)(this.currentData), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-                    var item = _step3.value;
+                for (var _iterator4 = (0, _getIterator3.default)(this.currentData), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+                    var item = _step4.value;
 
                     if (_search(item)) return true;
                 }
             } catch (err) {
-                _didIteratorError3 = true;
-                _iteratorError3 = err;
+                _didIteratorError4 = true;
+                _iteratorError4 = err;
             } finally {
                 try {
-                    if (!_iteratorNormalCompletion3 && _iterator3.return) {
-                        _iterator3.return();
+                    if (!_iteratorNormalCompletion4 && _iterator4.return) {
+                        _iterator4.return();
                     }
                 } finally {
-                    if (_didIteratorError3) {
-                        throw _iteratorError3;
+                    if (_didIteratorError4) {
+                        throw _iteratorError4;
                     }
                 }
             }
         },
         rebuild: function rebuild() {
-            var _this6 = this;
+            var _this5 = this;
 
             var keys = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : ['title'];
 
@@ -26303,26 +26331,26 @@ exports.default = {
             var stack = [];
             var query = this.query;
             var insertData = function (stack, node) {
-                (0, _newArrowCheck3.default)(this, _this6);
+                (0, _newArrowCheck3.default)(this, _this5);
 
                 var p = tree;
                 var found = void 0;
-                var _iteratorNormalCompletion4 = true;
-                var _didIteratorError4 = false;
-                var _iteratorError4 = undefined;
+                var _iteratorNormalCompletion5 = true;
+                var _didIteratorError5 = false;
+                var _iteratorError5 = undefined;
 
                 try {
-                    for (var _iterator4 = (0, _getIterator3.default)(stack), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
-                        var item = _step4.value;
+                    for (var _iterator5 = (0, _getIterator3.default)(stack), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
+                        var item = _step5.value;
 
                         found = false;
-                        var _iteratorNormalCompletion5 = true;
-                        var _didIteratorError5 = false;
-                        var _iteratorError5 = undefined;
+                        var _iteratorNormalCompletion6 = true;
+                        var _didIteratorError6 = false;
+                        var _iteratorError6 = undefined;
 
                         try {
-                            for (var _iterator5 = (0, _getIterator3.default)(p), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
-                                var c = _step5.value;
+                            for (var _iterator6 = (0, _getIterator3.default)(p), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
+                                var c = _step6.value;
 
                                 if (c.id === item.id) {
                                     if (!c[this.childrenKey]) c[this.childrenKey] = [];
@@ -26332,16 +26360,16 @@ exports.default = {
                                 }
                             }
                         } catch (err) {
-                            _didIteratorError5 = true;
-                            _iteratorError5 = err;
+                            _didIteratorError6 = true;
+                            _iteratorError6 = err;
                         } finally {
                             try {
-                                if (!_iteratorNormalCompletion5 && _iterator5.return) {
-                                    _iterator5.return();
+                                if (!_iteratorNormalCompletion6 && _iterator6.return) {
+                                    _iterator6.return();
                                 }
                             } finally {
-                                if (_didIteratorError5) {
-                                    throw _iteratorError5;
+                                if (_didIteratorError6) {
+                                    throw _iteratorError6;
                                 }
                             }
                         }
@@ -26358,16 +26386,16 @@ exports.default = {
                         }
                     }
                 } catch (err) {
-                    _didIteratorError4 = true;
-                    _iteratorError4 = err;
+                    _didIteratorError5 = true;
+                    _iteratorError5 = err;
                 } finally {
                     try {
-                        if (!_iteratorNormalCompletion4 && _iterator4.return) {
-                            _iterator4.return();
+                        if (!_iteratorNormalCompletion5 && _iterator5.return) {
+                            _iterator5.return();
                         }
                     } finally {
-                        if (_didIteratorError4) {
-                            throw _iteratorError4;
+                        if (_didIteratorError5) {
+                            throw _iteratorError5;
                         }
                     }
                 }
@@ -26382,36 +26410,36 @@ exports.default = {
             }.bind(this);
 
             var match = function (node) {
-                (0, _newArrowCheck3.default)(this, _this6);
-                var _iteratorNormalCompletion6 = true;
-                var _didIteratorError6 = false;
-                var _iteratorError6 = undefined;
+                (0, _newArrowCheck3.default)(this, _this5);
+                var _iteratorNormalCompletion7 = true;
+                var _didIteratorError7 = false;
+                var _iteratorError7 = undefined;
 
                 try {
-                    for (var _iterator6 = (0, _getIterator3.default)(keys), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
-                        var k = _step6.value;
+                    for (var _iterator7 = (0, _getIterator3.default)(keys), _step7; !(_iteratorNormalCompletion7 = (_step7 = _iterator7.next()).done); _iteratorNormalCompletion7 = true) {
+                        var k = _step7.value;
 
                         if (node[k] && (node[k] + '').indexOf(query) > -1) {
                             return true;
                         }
                     }
                 } catch (err) {
-                    _didIteratorError6 = true;
-                    _iteratorError6 = err;
+                    _didIteratorError7 = true;
+                    _iteratorError7 = err;
                 } finally {
                     try {
-                        if (!_iteratorNormalCompletion6 && _iterator6.return) {
-                            _iterator6.return();
+                        if (!_iteratorNormalCompletion7 && _iterator7.return) {
+                            _iterator7.return();
                         }
                     } finally {
-                        if (_didIteratorError6) {
-                            throw _iteratorError6;
+                        if (_didIteratorError7) {
+                            throw _iteratorError7;
                         }
                     }
                 }
             }.bind(this);
             var find = function (parent) {
-                (0, _newArrowCheck3.default)(this, _this6);
+                (0, _newArrowCheck3.default)(this, _this5);
 
                 if (!parent[this.childrenKey] || parent[this.childrenKey] && parent[this.childrenKey].length === 0) {
                     if ((this.multiple && this.model.indexOf(parent.id) === -1 || !this.multiple && self.model !== parent.id) && match(parent)) insertData(stack, parent);
@@ -26420,27 +26448,27 @@ exports.default = {
                         if (match(parent)) insertData(stack, parent);
                     }
                     stack.push(parent);
-                    var _iteratorNormalCompletion7 = true;
-                    var _didIteratorError7 = false;
-                    var _iteratorError7 = undefined;
+                    var _iteratorNormalCompletion8 = true;
+                    var _didIteratorError8 = false;
+                    var _iteratorError8 = undefined;
 
                     try {
-                        for (var _iterator7 = (0, _getIterator3.default)(parent[this.childrenKey]), _step7; !(_iteratorNormalCompletion7 = (_step7 = _iterator7.next()).done); _iteratorNormalCompletion7 = true) {
-                            var c = _step7.value;
+                        for (var _iterator8 = (0, _getIterator3.default)(parent[this.childrenKey]), _step8; !(_iteratorNormalCompletion8 = (_step8 = _iterator8.next()).done); _iteratorNormalCompletion8 = true) {
+                            var c = _step8.value;
 
                             find(c);
                         }
                     } catch (err) {
-                        _didIteratorError7 = true;
-                        _iteratorError7 = err;
+                        _didIteratorError8 = true;
+                        _iteratorError8 = err;
                     } finally {
                         try {
-                            if (!_iteratorNormalCompletion7 && _iterator7.return) {
-                                _iterator7.return();
+                            if (!_iteratorNormalCompletion8 && _iterator8.return) {
+                                _iterator8.return();
                             }
                         } finally {
-                            if (_didIteratorError7) {
-                                throw _iteratorError7;
+                            if (_didIteratorError8) {
+                                throw _iteratorError8;
                             }
                         }
                     }
@@ -26449,27 +26477,27 @@ exports.default = {
                 }
             }.bind(this);
             if (this.oldData && this.oldData.length > 0) {
-                var _iteratorNormalCompletion8 = true;
-                var _didIteratorError8 = false;
-                var _iteratorError8 = undefined;
+                var _iteratorNormalCompletion9 = true;
+                var _didIteratorError9 = false;
+                var _iteratorError9 = undefined;
 
                 try {
-                    for (var _iterator8 = (0, _getIterator3.default)(this.oldData), _step8; !(_iteratorNormalCompletion8 = (_step8 = _iterator8.next()).done); _iteratorNormalCompletion8 = true) {
-                        var item = _step8.value;
+                    for (var _iterator9 = (0, _getIterator3.default)(this.oldData), _step9; !(_iteratorNormalCompletion9 = (_step9 = _iterator9.next()).done); _iteratorNormalCompletion9 = true) {
+                        var item = _step9.value;
 
                         find(item);
                     }
                 } catch (err) {
-                    _didIteratorError8 = true;
-                    _iteratorError8 = err;
+                    _didIteratorError9 = true;
+                    _iteratorError9 = err;
                 } finally {
                     try {
-                        if (!_iteratorNormalCompletion8 && _iterator8.return) {
-                            _iterator8.return();
+                        if (!_iteratorNormalCompletion9 && _iterator9.return) {
+                            _iterator9.return();
                         }
                     } finally {
-                        if (_didIteratorError8) {
-                            throw _iteratorError8;
+                        if (_didIteratorError9) {
+                            throw _iteratorError9;
                         }
                     }
                 }
@@ -26477,76 +26505,76 @@ exports.default = {
             return tree;
         },
         checkItems: function checkItems() {
-            var _this7 = this;
+            var _this6 = this;
 
             var find = function (parent) {
-                (0, _newArrowCheck3.default)(this, _this7);
+                (0, _newArrowCheck3.default)(this, _this6);
 
                 if (this.model.indexOf(parent.id) > -1) {
                     var changed = { checked: true, nodeKey: parent.nodeKey };
                     this.$refs.selector.handleCheck(changed);
                 }
                 if (parent[this.childrenKey] && parent[this.childrenKey].length > 0) {
-                    var _iteratorNormalCompletion9 = true;
-                    var _didIteratorError9 = false;
-                    var _iteratorError9 = undefined;
+                    var _iteratorNormalCompletion10 = true;
+                    var _didIteratorError10 = false;
+                    var _iteratorError10 = undefined;
 
                     try {
-                        for (var _iterator9 = (0, _getIterator3.default)(parent[this.childrenKey]), _step9; !(_iteratorNormalCompletion9 = (_step9 = _iterator9.next()).done); _iteratorNormalCompletion9 = true) {
-                            var c = _step9.value;
+                        for (var _iterator10 = (0, _getIterator3.default)(parent[this.childrenKey]), _step10; !(_iteratorNormalCompletion10 = (_step10 = _iterator10.next()).done); _iteratorNormalCompletion10 = true) {
+                            var c = _step10.value;
 
                             find(c);
                         }
                     } catch (err) {
-                        _didIteratorError9 = true;
-                        _iteratorError9 = err;
+                        _didIteratorError10 = true;
+                        _iteratorError10 = err;
                     } finally {
                         try {
-                            if (!_iteratorNormalCompletion9 && _iterator9.return) {
-                                _iterator9.return();
+                            if (!_iteratorNormalCompletion10 && _iterator10.return) {
+                                _iterator10.return();
                             }
                         } finally {
-                            if (_didIteratorError9) {
-                                throw _iteratorError9;
+                            if (_didIteratorError10) {
+                                throw _iteratorError10;
                             }
                         }
                     }
                 }
             }.bind(this);
-            var _iteratorNormalCompletion10 = true;
-            var _didIteratorError10 = false;
-            var _iteratorError10 = undefined;
+            var _iteratorNormalCompletion11 = true;
+            var _didIteratorError11 = false;
+            var _iteratorError11 = undefined;
 
             try {
-                for (var _iterator10 = (0, _getIterator3.default)(this.currentData), _step10; !(_iteratorNormalCompletion10 = (_step10 = _iterator10.next()).done); _iteratorNormalCompletion10 = true) {
-                    var item = _step10.value;
+                for (var _iterator11 = (0, _getIterator3.default)(this.currentData), _step11; !(_iteratorNormalCompletion11 = (_step11 = _iterator11.next()).done); _iteratorNormalCompletion11 = true) {
+                    var item = _step11.value;
 
                     find(item);
                 }
             } catch (err) {
-                _didIteratorError10 = true;
-                _iteratorError10 = err;
+                _didIteratorError11 = true;
+                _iteratorError11 = err;
             } finally {
                 try {
-                    if (!_iteratorNormalCompletion10 && _iterator10.return) {
-                        _iterator10.return();
+                    if (!_iteratorNormalCompletion11 && _iterator11.return) {
+                        _iterator11.return();
                     }
                 } finally {
-                    if (_didIteratorError10) {
-                        throw _iteratorError10;
+                    if (_didIteratorError11) {
+                        throw _iteratorError11;
                     }
                 }
             }
         },
         loadData: function loadData(item, callback) {
-            var _this8 = this;
+            var _this7 = this;
 
             if (!this.remoteLoadData) return;
             if (item && callback) {
                 this.remoteLoadData(item, callback);
             } else {
                 var cb = function (data) {
-                    (0, _newArrowCheck3.default)(this, _this8);
+                    (0, _newArrowCheck3.default)(this, _this7);
 
                     this.currentData = data;
                     this.notFound = this.currentData.length === 0;
@@ -26557,61 +26585,16 @@ exports.default = {
         },
         isSelected: function isSelected(item) {
             if (this.multiple) {
-                var _iteratorNormalCompletion11 = true;
-                var _didIteratorError11 = false;
-                var _iteratorError11 = undefined;
-
-                try {
-                    for (var _iterator11 = (0, _getIterator3.default)(this.selectedMultiple), _step11; !(_iteratorNormalCompletion11 = (_step11 = _iterator11.next()).done); _iteratorNormalCompletion11 = true) {
-                        var c = _step11.value;
-
-                        if (item.id === c.value) {
-                            return true;
-                        }
-                    }
-                } catch (err) {
-                    _didIteratorError11 = true;
-                    _iteratorError11 = err;
-                } finally {
-                    try {
-                        if (!_iteratorNormalCompletion11 && _iterator11.return) {
-                            _iterator11.return();
-                        }
-                    } finally {
-                        if (_didIteratorError11) {
-                            throw _iteratorError11;
-                        }
-                    }
-                }
-            } else {
-                if (item.title === this.selectedSingle) {
-                    return true;
-                }
-            }
-        },
-        handleRemoteLoadData: function handleRemoteLoadData(item, callback) {
-            this.loadData(item, callback);
-        },
-        handleUpdatePopper: function handleUpdatePopper() {
-            var _this9 = this;
-
-            var walk = function (data) {
-                (0, _newArrowCheck3.default)(this, _this9);
                 var _iteratorNormalCompletion12 = true;
                 var _didIteratorError12 = false;
                 var _iteratorError12 = undefined;
 
                 try {
-                    for (var _iterator12 = (0, _getIterator3.default)(data), _step12; !(_iteratorNormalCompletion12 = (_step12 = _iterator12.next()).done); _iteratorNormalCompletion12 = true) {
-                        var item = _step12.value;
+                    for (var _iterator12 = (0, _getIterator3.default)(this.selectedMultiple), _step12; !(_iteratorNormalCompletion12 = (_step12 = _iterator12.next()).done); _iteratorNormalCompletion12 = true) {
+                        var c = _step12.value;
 
-                        if (this.isSelected(item)) {
-                            this.$set(item, 'checked', true);
-
-                            this.$set(item, 'selected', true);
-                        }
-                        if (item[this.childrenKey] && item[this.childrenKey].length > 0) {
-                            walk(item[this.childrenKey]);
+                        if (item.id === c.value) {
+                            return true;
                         }
                     }
                 } catch (err) {
@@ -26628,12 +26611,62 @@ exports.default = {
                         }
                     }
                 }
+            } else {
+                if (item.title === this.selectedSingle) {
+                    return true;
+                }
+            }
+        },
+        handleRemoteLoadData: function handleRemoteLoadData(item, callback) {
+            this.loadData(item, callback);
+        },
+        handleUpdatePopper: function handleUpdatePopper() {
+            var _this8 = this;
+
+            var walk = function (data) {
+                (0, _newArrowCheck3.default)(this, _this8);
+                var _iteratorNormalCompletion13 = true;
+                var _didIteratorError13 = false;
+                var _iteratorError13 = undefined;
+
+                try {
+                    for (var _iterator13 = (0, _getIterator3.default)(data), _step13; !(_iteratorNormalCompletion13 = (_step13 = _iterator13.next()).done); _iteratorNormalCompletion13 = true) {
+                        var item = _step13.value;
+
+                        var flag = this.isSelected(item);
+                        if (this.multiple) {
+                            if (!item.checked) {
+                                this.$set(item, 'checked', flag);
+                            }
+                        } else {
+                            if (!item.selected) {
+                                this.$set(item, 'selected', flag);
+                            }
+                        }
+                        if (item[this.childrenKey] && item[this.childrenKey].length > 0) {
+                            walk(item[this.childrenKey]);
+                        }
+                    }
+                } catch (err) {
+                    _didIteratorError13 = true;
+                    _iteratorError13 = err;
+                } finally {
+                    try {
+                        if (!_iteratorNormalCompletion13 && _iterator13.return) {
+                            _iterator13.return();
+                        }
+                    } finally {
+                        if (_didIteratorError13) {
+                            throw _iteratorError13;
+                        }
+                    }
+                }
             }.bind(this);
 
             walk(this.currentData);
         },
         doQuery: function doQuery(val) {
-            var _this10 = this;
+            var _this9 = this;
 
             if (this.remote && this.remoteQuery) {
                 if (val) {
@@ -26641,7 +26674,7 @@ exports.default = {
                         this.oldData = this.currentData;
                     }
                     var cb = function (data) {
-                        (0, _newArrowCheck3.default)(this, _this10);
+                        (0, _newArrowCheck3.default)(this, _this9);
 
                         this.currentData = data;
                         this.notFound = this.currentData.length === 0;
@@ -26677,7 +26710,7 @@ exports.default = {
         value: {
             immediate: true,
             handler: function handler(val) {
-                var _this11 = this;
+                var _this10 = this;
 
                 if (this.multiple) {
                     if (!val) val = [];
@@ -26687,7 +26720,7 @@ exports.default = {
                 if (this.labelInValue) {
                     if (this.multiple) {
                         this.model = val.map(function (x) {
-                            (0, _newArrowCheck3.default)(this, _this11);
+                            (0, _newArrowCheck3.default)(this, _this10);
                             return x.value;
                         }.bind(this));
                         this.currentLabel = val.slice();
@@ -26702,28 +26735,28 @@ exports.default = {
                     this.query = '';
                     this.selectedMultiple = [];
                     this.$nextTick(function () {
-                        (0, _newArrowCheck3.default)(this, _this11);
-                        var _iteratorNormalCompletion13 = true;
-                        var _didIteratorError13 = false;
-                        var _iteratorError13 = undefined;
+                        (0, _newArrowCheck3.default)(this, _this10);
+                        var _iteratorNormalCompletion14 = true;
+                        var _didIteratorError14 = false;
+                        var _iteratorError14 = undefined;
 
                         try {
-                            for (var _iterator13 = (0, _getIterator3.default)(model), _step13; !(_iteratorNormalCompletion13 = (_step13 = _iterator13.next()).done); _iteratorNormalCompletion13 = true) {
-                                var item = _step13.value;
+                            for (var _iterator14 = (0, _getIterator3.default)(model), _step14; !(_iteratorNormalCompletion14 = (_step14 = _iterator14.next()).done); _iteratorNormalCompletion14 = true) {
+                                var item = _step14.value;
 
                                 this.deselect(item);
                             }
                         } catch (err) {
-                            _didIteratorError13 = true;
-                            _iteratorError13 = err;
+                            _didIteratorError14 = true;
+                            _iteratorError14 = err;
                         } finally {
                             try {
-                                if (!_iteratorNormalCompletion13 && _iterator13.return) {
-                                    _iterator13.return();
+                                if (!_iteratorNormalCompletion14 && _iterator14.return) {
+                                    _iterator14.return();
                                 }
                             } finally {
-                                if (_didIteratorError13) {
-                                    throw _iteratorError13;
+                                if (_didIteratorError14) {
+                                    throw _iteratorError14;
                                 }
                             }
                         }
@@ -26734,7 +26767,7 @@ exports.default = {
                         this.query = '';
                         this.selectedSingle = '';
                         this.$nextTick(function () {
-                            (0, _newArrowCheck3.default)(this, _this11);
+                            (0, _newArrowCheck3.default)(this, _this10);
 
                             this.deselect(model);
                         }.bind(this));
@@ -26799,9 +26832,6 @@ exports.default = {
                 if (this.filterable) {
                     if (this.multiple) {
                         this.$refs.input.focus();
-                        if (!this.query) {
-                            this.checkItems();
-                        }
                     } else {
                         if (!this.autoComplete) this.$refs.input.select();
                     }
@@ -41862,8 +41892,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_tree_select_vue__ = __webpack_require__(248);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_tree_select_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_tree_select_vue__);
 /* harmony namespace reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_tree_select_vue__) if(__WEBPACK_IMPORT_KEY__ !== 'default') (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_tree_select_vue__[key]; }) }(__WEBPACK_IMPORT_KEY__));
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__babel_loader_sourceMap_node_modules_vue_loader_lib_template_compiler_index_id_data_v_4cb03a31_hasScoped_false_optionsId_0_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_tree_select_vue__ = __webpack_require__(620);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__babel_loader_sourceMap_node_modules_vue_loader_lib_template_compiler_index_id_data_v_4cb03a31_hasScoped_false_optionsId_0_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_tree_select_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__babel_loader_sourceMap_node_modules_vue_loader_lib_template_compiler_index_id_data_v_4cb03a31_hasScoped_false_optionsId_0_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_tree_select_vue__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__babel_loader_sourceMap_node_modules_vue_loader_lib_template_compiler_index_id_data_v_55621d3c_hasScoped_false_optionsId_0_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_tree_select_vue__ = __webpack_require__(620);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__babel_loader_sourceMap_node_modules_vue_loader_lib_template_compiler_index_id_data_v_55621d3c_hasScoped_false_optionsId_0_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_tree_select_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__babel_loader_sourceMap_node_modules_vue_loader_lib_template_compiler_index_id_data_v_55621d3c_hasScoped_false_optionsId_0_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_tree_select_vue__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__node_modules_vue_loader_lib_runtime_component_normalizer__ = __webpack_require__(0);
 /* script */
 
@@ -41881,8 +41911,8 @@ var __vue_module_identifier__ = null
 
 var Component = Object(__WEBPACK_IMPORTED_MODULE_2__node_modules_vue_loader_lib_runtime_component_normalizer__["a" /* default */])(
   __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_tree_select_vue___default.a,
-  __WEBPACK_IMPORTED_MODULE_1__babel_loader_sourceMap_node_modules_vue_loader_lib_template_compiler_index_id_data_v_4cb03a31_hasScoped_false_optionsId_0_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_tree_select_vue__["render"],
-  __WEBPACK_IMPORTED_MODULE_1__babel_loader_sourceMap_node_modules_vue_loader_lib_template_compiler_index_id_data_v_4cb03a31_hasScoped_false_optionsId_0_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_tree_select_vue__["staticRenderFns"],
+  __WEBPACK_IMPORTED_MODULE_1__babel_loader_sourceMap_node_modules_vue_loader_lib_template_compiler_index_id_data_v_55621d3c_hasScoped_false_optionsId_0_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_tree_select_vue__["render"],
+  __WEBPACK_IMPORTED_MODULE_1__babel_loader_sourceMap_node_modules_vue_loader_lib_template_compiler_index_id_data_v_55621d3c_hasScoped_false_optionsId_0_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_tree_select_vue__["staticRenderFns"],
   __vue_template_functional__,
   __vue_styles__,
   __vue_scopeId__,
