@@ -110,6 +110,11 @@ export default {
         type: Boolean,
         default: false
     },
+    // 是否保留
+    keepFilter: {
+        type: Boolean,
+        default: false
+    },
     filterMethod: {
         type: Function
     },
@@ -323,9 +328,9 @@ export default {
         // if (this.autoComplete && !options.length) status = false;
 
         // return this.visible && status;
-        if (!this.visible) {
-            this.query = ''
-        }
+        // if (!this.visible) {
+        //     this.query = ''
+        // }
         return this.visible
     },
     notFoundShow () {
@@ -658,20 +663,15 @@ export default {
                 //检查是否选中状态
                 let flag = this.isSelected(item)
                 if (this.multiple) {
-                    if (!item.checked) {
-                        this.$set(item, 'checked', flag)
-                    }
+                    this.$set(item, 'checked', flag)
                 } else {
-                    if (!item.selected) {
-                        this.$set(item, 'selected', flag)
-                    }
+                    this.$set(item, 'selected', flag)
                 }
                 if (item[this.childrenKey] && item[this.childrenKey].length > 0) {
                     walk(item[this.childrenKey])
                 }
             }
         }
-        // if (this.multiple)
         walk(this.currentData)
     },
     doQuery (val) {
@@ -834,10 +834,18 @@ export default {
                   }
               }
               this.broadcast('Drop', 'on-update-popper');
+              // if (this.multiple)
+              if (!this.keepFilter && this.oldData) {
+                  this.currentData = this.oldData
+              }
           } else {
               if (this.filterable) {
                   if (!this.autoComplete) this.$refs.input.blur();
-                //   this.query = ''
+                  if (this.multiple){
+                    this.query = ''
+                  } else {
+                    this.query = this.selectedSingle
+                  }
               }
               this.broadcast('Drop', 'on-destroy-popper');
               this.$emit('close')
