@@ -464,7 +464,12 @@ export default {
     // 将 node 的值推送到 model 中，用于多选情况
     // model 是 id 的数组，不是对象
     pushData (model, selectedMultiple, node) {
-        selectedMultiple.push(Object.assign({}, node, {value:node.id || node.title, label: node.title}))
+        let d = Object.assign({}, node, {value:node.id || node.title, label: node.title})
+        // 清除子结点
+        if (d[this.childrenKey]) {
+            delete d[this.childrenKey]
+        }
+        selectedMultiple.push(d)
         model.push(node.id)
     },
 
