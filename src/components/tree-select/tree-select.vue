@@ -475,21 +475,34 @@ export default {
 
     handleChecked (items, node) {
         if (this.multiple) {
-            let model = [];
-            let selectedMultiple = [];
-            let hasChildren;
-            for (let item of items) {
-                hasChildren = item[this.childrenKey] ? item[this.childrenKey].length : null;
-                if (this.onlyLeaf) {
-                    if (!hasChildren) {
-                        this.pushData(model, selectedMultiple, item);
+            for(let i=0, len=this.selectedMultiple.length; i<len; i++) {
+                let item = this.selectedMultiple[i]
+                if (item.id === node.id) {
+                    if (!node.checked) {
+                        this.selectedMultiple.splice(i, 1)
+                        this.model.splice(i, 1)
                     }
-                } else {
-                    this.pushData(model, selectedMultiple, item);
+                    break
                 }
             }
-            this.selectedMultiple = selectedMultiple;
-            this.model = model;
+            if (node.checked) {
+                this.pushData(this.model, this.selectedMultiple, node)
+            }
+            // let model = [];
+            // let selectedMultiple = [];
+            // let hasChildren;
+            // for (let item of items) {
+            //     hasChildren = item[this.childrenKey] ? item[this.childrenKey].length : null;
+            //     if (this.onlyLeaf) {
+            //         if (!hasChildren) {
+            //             this.pushData(model, selectedMultiple, item);
+            //         }
+            //     } else {
+            //         this.pushData(model, selectedMultiple, item);
+            //     }
+            // }
+            // this.selectedMultiple = selectedMultiple;
+            // this.model = model;
         }
     },
 
