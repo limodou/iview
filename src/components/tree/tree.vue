@@ -114,7 +114,8 @@
                 });
                 return flatTree;
             },
-            updateTreeUp(nodeKey){
+            // deleted 用于记录将被删除的结点
+            updateTreeUp(nodeKey, deleted=[]){
                 const parentKey = this.flatState[nodeKey].parent;
                 if (typeof parentKey == 'undefined' || this.checkStrictly) return;
 
@@ -126,10 +127,11 @@
                     this.$set(parent, 'checked', parent[this.childrenKey].every(node => node.checked));
                     this.$set(parent, 'indeterminate', !parent.checked);
                 } else {
+                    if (parent.checked) deleted.push(parent.id) // 记录将被删除的父结点
                     this.$set(parent, 'checked', false);
                     this.$set(parent, 'indeterminate', parent[this.childrenKey].some(node => node.checked || node.indeterminate));
                 }
-                this.updateTreeUp(parentKey);
+                this.updateTreeUp(parentKey, deleted);
             },
             rebuildTree () { // only called when `data` prop changes
                 const checkedNodes = this.getCheckedNodes();
@@ -158,15 +160,18 @@
                 /* public API */
                 return this.flatState.filter(obj => (obj.node.checked || obj.node.indeterminate)).map(obj => obj.node);
             },
-            updateTreeDown(node, changes = {}) {
+            updateTreeDown(node, changes = {}, deleted) {
                 if (this.checkStrictly) return;
 
                 for (let key in changes) {
+                    if ((key === 'checked') && node.checked && !changes.checked) {
+                        deleted.push(node.id)
+                    }
                     this.$set(node, key, changes[key]);
                 }
                 if (node[this.childrenKey]) {
                     node[this.childrenKey].forEach(child => {
-                        this.updateTreeDown(child, changes);
+                        this.updateTreeDown(child, changes, deleted);
                     });
                 }
             },
@@ -184,11 +189,13 @@
                 const node = this.flatState[nodeKey].node;
                 this.$set(node, 'checked', checked);
                 this.$set(node, 'indeterminate', false);
+                let deleted = []
 
-                this.updateTreeUp(nodeKey); // propagate up
-                this.updateTreeDown(node, {checked, indeterminate: false}); // reset `indeterminate` when going down
+                this.updateTreeUp(nodeKey, deleted); // propagate up
+                this.updateTreeDown(node, {checked, indeterminate: false}, deleted); // reset `indeterminate` when going down
+                if (!node.checked) deleted.push(node.id)
 
-                this.$emit('on-check-change', this.getCheckedNodes(), node);
+                this.$emit('on-check-change', this.getCheckedNodes(), node, deleted);
             }
         },
         created(){

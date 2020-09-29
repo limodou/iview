@@ -473,60 +473,28 @@ export default {
         model.push(node.id)
     },
 
-    handleChecked (items, node) {
+    handleChecked (items, node, deleted) {
         if (this.multiple) {
-            for(let i=0, len=this.selectedMultiple.length; i<len; i++) {
-                let item = this.selectedMultiple[i]
-                if (item.id === node.id) {
-                    if (!node.checked) {
-                        this.selectedMultiple.splice(i, 1)
-                        this.model.splice(i, 1)
+            let selectedMultiple = [...this.selectedMultiple]
+            let model = [...this.model]
+            if (deleted.length > 0){
+                for(let i=selectedMultiple.length-1; i>-1; i--) {
+                    let item = selectedMultiple[i]
+                    if (deleted.indexOf(item.value) > -1) {
+                        selectedMultiple.splice(i, 1)
+                        model.splice(i, 1)
                     }
-                    break
                 }
             }
-            if (node.checked) {
-                this.pushData(this.model, this.selectedMultiple, node)
+            for(let item of items) {
+                if (model.indexOf(item.id) === -1) {
+                    this.pushData(model, selectedMultiple, item);
+                }
             }
-            // let model = [];
-            // let selectedMultiple = [];
-            // let hasChildren;
-            // for (let item of items) {
-            //     hasChildren = item[this.childrenKey] ? item[this.childrenKey].length : null;
-            //     if (this.onlyLeaf) {
-            //         if (!hasChildren) {
-            //             this.pushData(model, selectedMultiple, item);
-            //         }
-            //     } else {
-            //         this.pushData(model, selectedMultiple, item);
-            //     }
-            // }
-            // this.selectedMultiple = selectedMultiple;
-            // this.model = model;
+            this.selectedMultiple = selectedMultiple;
+            this.model = model;
         }
     },
-
-    // handleChecked (items, node) {
-    //   if (this.multiple) {
-    //     let model = this.model.slice()
-    //     // 非叶子结点，并且当前值中不存在
-    //     if (node.checked) {
-    //         let children = node[this.childrenKey];
-    //         if (((this.onlyLeaf && (!children || !children.length)) || !this.onlyLeaf) && this.model.indexOf(node.id) === -1) {
-    //             this.selectedMultiple.push(Object.assign({}, node, {value:node.id || node.title, label: node.title}))
-    //             model.push(node.id)
-    //             this.model = model
-    //         }
-    //     } else {
-    //         this.selectedMultiple = this.selectedMultiple.filter((x) => x.value !== node.id)
-    //         let index = this.model.indexOf(node.id)
-    //         if (index > -1) {
-    //             model.splice(index, 1)
-    //             this.model = model
-    //         }
-    //     }
-    //   }
-    // },
 
     deselect (value) {
         const _search = (parent) => {
