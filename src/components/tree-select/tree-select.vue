@@ -249,8 +249,9 @@ export default {
     treedata () {
         const f = (parent) => {
             for (let c of parent) {
-                // 是否有子结点，有则disabled
-                c.disabled = Boolean(this.onlyLeaf && this.parentDisabledWhenOnlyLeaf && ((c.children && c.children.length) || ('loading' in c && !c.loadding)))
+                // 处理 disabled
+                let status_disabled = Boolean(this.onlyLeaf && this.parentDisabledWhenOnlyLeaf && ((c.children && c.children.length) || ('loading' in c && !c.loadding)))
+                c.disabled = c.disabled || status_disabled
                 if (c.children && c.children.length) {
                     f(c.children)
                 }
@@ -706,7 +707,9 @@ export default {
             if (this.multiple) {
                 if (!val) val = []
             }
-            if (deepCompare(val, this.model)) return
+            if ((typeof val === 'object' && this.model === val.value) || 
+                (typeof val !== 'object' && this.model===val)) return
+            // if (deepCompare(val, this.model)) return
             let model = this.model
             if (this.labelInValue) {
                 if (this.multiple) {
@@ -774,7 +777,9 @@ export default {
                 if (!this.multiple) {
                     // 有值返回对象，无值空对象
                     if (this.model) {
-                        this.$emit('input', Object.assign({}, this.currentNode, {value: this.model, label: this.selectedSingle}))
+                        let r = Object.assign({}, this.currentNode, {value: this.model, label: this.selectedSingle})
+                        delete r.children
+                        this.$emit('input', r)
                     } else {
                         this.$emit('input', {})
                     }
