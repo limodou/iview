@@ -611,6 +611,7 @@
             },
             resetInputState () {
                 this.inputLength = this.$refs.input.value.length * 12 + 20;
+                this.visible = true;
             },
             handleInputDelete () {
                 if (this.multiple && this.model.length && this.query === '') {
@@ -806,7 +807,7 @@
                         if (this.multiple) {
                             this.$refs.input.focus();
                         } else {
-                            if (!this.autoComplete) this.$refs.input.select();
+                            // if (!this.autoComplete) this.$refs.input.select();
                         }
                         if (this.remote) {
                             this.findChild(child => {
